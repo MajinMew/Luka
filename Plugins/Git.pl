@@ -25,7 +25,7 @@ addPlug('Git', {
         foreach(@output) {
           chomp($_);
           lkDebug($_);
-          if(/fetch first$/) { $error = 1; }
+          if(/fetch first/) { $error = 1; }
         }
         if($error) {
           &{$utility{'Fancify_say'}}($_[1]{irc},$_[2]{where},"Pushed failed. Need to \x04git pull\x04 first.");
