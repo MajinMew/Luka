@@ -15,6 +15,7 @@ addPlug('Git', {
         if(!$message) { $message = 'Automated push from '.hostname(); }
         else { $message =~ s/^\s//g; $message =~ s/\"/\\\"/g; }
         system('git add *.pl');
+        system('git add *.bat');
         system('git commit -m "'.$message.'"');
         system('git push');
         &{$utility{'Fancify_say'}}($_[1]{irc},$_[2]{where},"Pushed latest updates to >>Github with message \"$message\"");

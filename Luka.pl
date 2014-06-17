@@ -68,7 +68,7 @@ sub lkShell {
       print "Do you want to add another channel to autojoin?\n>";
     }
     push(@{$lk{data}{networks}}, \%alias);
-      print "Finished setup.\n>";
+    print "Finished setup, execute \"start\" to connect now or \"commands\" to view the list of available commands.\n";
     lkSave();
   }],
   ['^disable (\d+)$', 'Disables an existing connection.', sub {
