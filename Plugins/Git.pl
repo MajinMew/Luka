@@ -6,7 +6,7 @@ addPlug('Git', {
   'modules' => ['Sys::Hostname'],
   'description' => "This plugin was created to easily push updates from Luka onto the main branch.",
   'commands' => {
-    '^Git push( .+)$' => {
+    '^Git push( .+)?$' => {
       'description' => "Pushes latest updates to Github",
       'access' => 3,
       'tags' => ['utility'],
@@ -36,7 +36,12 @@ addPlug('Git', {
             push(@files,$1);
           }
         }
-        &{$utility{'Fancify_say'}}($_[1]{irc},$_[2]{where},"There are >>".@files." files modified and ready to be pushed. [\x04".(join "\x04] [\x04", @files)."\x04]");
+        if(@files) {
+          &{$utility{'Fancify_say'}}($_[1]{irc},$_[2]{where},"There are >>".@files." files modified and ready to be pushed. [\x04".(join "\x04] [\x04", @files)."\x04]");
+        }
+        else {
+          &{$utility{'Fancify_say'}}($_[1]{irc},$_[2]{where},"There are no files modified. Everything is synced up!");
+        }
       }
     }
   }
