@@ -228,8 +228,8 @@ addPlug("Misc_Commands", {
         if($command =~ /^say (.+)/i) {
           addTimer(time+$time, {
           'code' => sub { 
-            lkDebug($_[0]);
-            my @a = @{$_[0]}; 
+            lkDebug($_[1]);
+            my @a = @{$_[1]}; 
             lkDebug(join ", ", @a); 
             &{$utility{'Fancify_say'}}(@a); 
           },

@@ -30,6 +30,7 @@ addPlug('Git', {
         my @files = ();
         foreach(@output) {
           chomp($_);
+          lkDebug($_);
           if(/\#\s+modified\:\s+(.+)$/) {
             my $name = $1;
             $name =~ s/.+[\\\/](.+)/$1/g;
