@@ -11,6 +11,7 @@ addPlug("Fancify", {
       foreach(@string) { if(/\x04/) { $color++; if($color >= @colors) { $color = 0; } $_ = "\cC$colors[$color]"; } }
       $string = join "", @string;
       $string =~ s/(\#[\w]+)/\cC$colors[1]$1\cC$colors[0]/g;
+      $string =~ s/([a-z0-9]+:\/\/\S+\.[a-z]{2,6}\/?\S*?)/\cC$colors[1]$1\cC$colors[0]/g;
       $string =~ s/\|/\cC$colors[1]\|\cC$colors[0]/g;
       $string =~ s/(?:\x05|>>)([\w]+)/\cC$colors[1]$1\cC$colors[0]/g;
       $string =~ s/\cC\d{1,2}(?:,\d{1,2})?(\cC\d{1,2}(?:,\d{1,2})?)/$1/g;

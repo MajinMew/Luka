@@ -15,7 +15,7 @@ addPlug('Stalk', {
         my @text = ("Uploading...","Whenever this uploads...","Prepare for trouble.","It's not what you're thinking I swear.","Selfies intensify","NAILED IT.","Unsuspicious Webcam LED...","Papparazi mode activated.","That Face When.", "A wild Caaz appeared!");
         if($lk{os} =~ /MSWin32/) {
           system('"Resources/Stalk.bat" '.$fname);
-          &{$utility{'Fancify_say'}}($_[1]{irc},$_[2]{where},"$text[rand @text] \x04https://dl.dropboxusercontent.com/u/9305622/Pictures/".$fname.".jpg");
+          &{$utility{'Fancify_say'}}($_[1]{irc},$_[2]{where},"$text[rand @text] https://dl.dropboxusercontent.com/u/9305622/Pictures/".$fname.".jpg");
         }
       }
     },
@@ -27,7 +27,7 @@ addPlug('Stalk', {
         my $fname = "Scr-".(time);
         if($lk{os} =~ /MSWin32/) {
           system('"Resources/nircmd.exe" savescreenshot "C:/Users/%username%/Dropbox/Public/Screenshots/'.$fname.'.jpg"');
-          &{$utility{'Fancify_say'}}($_[1]{irc},$_[2]{where},"Screenshot from \x04". hostname ."\x04. \x04https://dl.dropboxusercontent.com/u/9305622/Screenshots/".$fname.".jpg");
+          &{$utility{'Fancify_say'}}($_[1]{irc},$_[2]{where},"Screenshot from ". hostname() .". https://dl.dropboxusercontent.com/u/9305622/Screenshots/".$fname.".jpg");
         }
       }
     }

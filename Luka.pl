@@ -146,7 +146,7 @@ sub lkConnect {
         if(($currentTime-$lk{tmp}{lastTime}) > 1) {
           foreach $wTime($lk{tmp}{lastTime}..$currentTime) {
             foreach(@{$lk{timer}{$wTime}}) {
-              lkDebug('Making up '. $wTime);
+              #lkDebug('Making up '. $wTime);
               &{${$_}{code}}($wTime,${$_}{args});
             }
             delete $lk{timer}{$wTime};
@@ -154,7 +154,7 @@ sub lkConnect {
         }
         else {
           foreach(@{$lk{timer}{$currentTime}}) {
-            lkDebug($currentTime);
+            # lkDebug($currentTime);
             &{${$_}{code}}($wTime,${$_}{args});
           }
           delete $lk{timer}{$currentTime};
