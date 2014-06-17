@@ -102,7 +102,7 @@ sub lkShell {
   }],
   ['^exit$', 'Exits.', \&lkEnd],
   ['^start$', 'Starts connecting.', \&lkConnect],
-  ['^help$', 'Shows commands', sub { foreach(@commands) { lkDebug("/${$_}[0]/ -> ${$_}[1]"); } }]);
+  ['^help|commands$', 'Shows commands', sub { foreach(@commands) { lkDebug("/${$_}[0]/ -> ${$_}[1]"); } }]);
   # List available commands.
   foreach(@commands) { lkDebug("/${$_}[0]/ -> ${$_}[1]"); }
   # Start input!

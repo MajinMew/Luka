@@ -1,1 +1,2 @@
 perl ./Luka.pl
+pause
