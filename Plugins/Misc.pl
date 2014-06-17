@@ -220,7 +220,7 @@ addPlug("Misc_Commands", {
         open HTML, ">C:/Users/Caaz/Dropbox/Public/Luka/Commands.html";
         print HTML $html;
         close HTML;
-        &{$utility{'Fancify_say'}}($_[1]{irc},$_[2]{where},"List of commands? Here you go. \x04https://dl.dropboxusercontent.com/u/9305622/Luka/Commands.html");
+        &{$utility{'Fancify_say'}}($_[1]{irc},$_[2]{where},"List of commands? Here you go. https://dl.dropboxusercontent.com/u/9305622/Luka/Commands.html");
       }
     },
     '^Say (.+)$' => {
