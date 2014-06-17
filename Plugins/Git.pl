@@ -25,8 +25,8 @@ addPlug('Git', {
         my $error = 0;
         foreach(@output) {
           chomp($_);
-          lkDebug($_);
-          if(/Rejected/i) { $error = 1; }
+          lkDebug('Got "'.$_.'"');
+          if(/Rejected/i) { lkDebug("Error"); $error = 1; }
         }
         if($error) {
           &{$utility{'Fancify_say'}}($_[1]{irc},$_[2]{where},"Pushed failed. Need to \x04git pull\x04 first.");
