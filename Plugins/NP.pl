@@ -34,12 +34,8 @@ addPlug("Foobar",{
       &{$utility{'Fancify_say'}}($_[0],$_[1],"[\x04$_[2]{name}\x04] \x04$_[2]{info}{title}\x04 by \x04$_[2]{info}{artist}\x04 [\x04$_[2]{info}{album}\x04] [$bar]");
     },
     'getInfo' => sub {
-      #my @handles = $lk{tmp}{plugin}{'Foobar'}{select}->handles;
-      #foreach(@handles) { print {$_} "trackinfo\n"; }
       while(1) {
         my @readable = $lk{tmp}{plugin}{'Foobar'}{select}->can_read(1);
-        #lkDebug("Readable = ".@readable);
-        lkDebug(time);
         if(@readable) {
           foreach $handle (@readable) {
             my $raw = readline($handle);
@@ -48,13 +44,9 @@ addPlug("Foobar",{
               &{$utility{'Foobar_disconnect'}}($handle);
               next;
             }
-            # 111|3|263|0.00|1|GBP Vs. Legendary Beasts|Junichi Masuda|Pok├⌐mon HeartGold & SoulSilver|199|
-            # 111|3|119|152.13|1|Kinetic Harvest|Module|Shatter Official Videogame Soundtrack|396
-            # 111|3|119|9.29|1|Kinetic Harvest|Module|Shatter Official Videogame Soundtrack|396|
             my @np = split /\|/, $raw;
             if($np[0] =~ /111/) {
               foreach(['artist',6],['title',5],['album',7],['position',3],['length',8]) {
-                #lkDebug("Setting info! ${$_}[0] ${$_}[1]");
                 $lk{tmp}{plugin}{'Foobar'}{handles}{fileno($handle)}{info}{${$_}[0]} = $np[${$_}[1]];
               }
               lkDebug($lk{tmp}{plugin}{'Foobar'}{handles}{fileno($handle)}{name}.' - '.$raw)

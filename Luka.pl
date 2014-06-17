@@ -68,6 +68,7 @@ sub lkShell {
       print "Do you want to add another channel to autojoin?\n>";
     }
     push(@{$lk{data}{networks}}, \%alias);
+      print "Finished setup.\n>";
     lkSave();
   }],
   ['^disable (\d+)$', 'Disables an existing connection.', sub {
@@ -100,7 +101,8 @@ sub lkShell {
     }
   }],
   ['^exit$', 'Exits.', \&lkEnd],
-  ['^start$', 'Starts connecting.', \&lkConnect]);
+  ['^start$', 'Starts connecting.', \&lkConnect],
+  ['^help$', 'Shows commands', sub { foreach(@commands) { lkDebug("/${$_}[0]/ -> ${$_}[1]"); } }]);
   # List available commands.
   foreach(@commands) { lkDebug("/${$_}[0]/ -> ${$_}[1]"); }
   # Start input!
@@ -145,18 +147,12 @@ sub lkConnect {
       if($lk{tmp}{lastTime}) {
         if(($currentTime-$lk{tmp}{lastTime}) > 1) {
           foreach $wTime($lk{tmp}{lastTime}..$currentTime) {
-            foreach(@{$lk{timer}{$wTime}}) {
-              #lkDebug('Making up '. $wTime);
-              &{${$_}{code}}($wTime,${$_}{args});
-            }
+            foreach(@{$lk{timer}{$wTime}}) { eval { &{${$_}{code}}($wTime,${$_}{args}); }; if($@) { lkDebug("Timer failed: ${$_}{args} - $@"); } }
             delete $lk{timer}{$wTime};
           }
         }
         else {
-          foreach(@{$lk{timer}{$currentTime}}) {
-            # lkDebug($currentTime);
-            &{${$_}{code}}($wTime,${$_}{args});
-          }
+          foreach(@{$lk{timer}{$currentTime}}) { eval { &{${$_}{code}}($wTime,${$_}{args}); }; if($@) { lkDebug("Timer failed: ${$_}{args} - $@"); } }
           delete $lk{timer}{$currentTime};
         }
       }

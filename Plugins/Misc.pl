@@ -196,9 +196,6 @@ addPlug("Misc_Commands", {
           $html .= 'Version: '.$lk{plugin}{$plugin}{version}.'<br />' if($lk{plugin}{$plugin}{version});
           $html .= 'Description: '.$lk{plugin}{$plugin}{description}.'<br />' if($lk{plugin}{$plugin}{description});
           @{$commands{$plugin}} = sort @{$commands{$plugin}};
-          my @alpha = (a..z,A..Z);
-          my $string;
-          foreach(0..5) { $string .= $alpha[rand @alpha]; }
           foreach (@{$commands{$plugin}}) {
             my $friendly = $_;
             $friendly =~ s/^\^|\$$//g;
@@ -222,6 +219,23 @@ addPlug("Misc_Commands", {
         close HTML;
         &{$utility{'Fancify_say'}}($_[1]{irc},$_[2]{where},"List of commands? Here you go. https://dl.dropboxusercontent.com/u/9305622/Luka/Commands.html");
       }
+    },
+    '^Timer (\d+) (.+)$' => {
+      'tags' => ['misc','utility'],
+      'description' => "Issues a timer! Available options are say and action.",
+      'code' => sub {
+        my ($time, $command) = ($1,$2);
+        if($command =~ /^say (.+)/i) {
+          addTimer(time+$time, {
+          'code' => sub { 
+            lkDebug($_[0]);
+            my @a = @{$_[0]}; 
+            lkDebug(join ", ", @a); 
+            &{$utility{'Fancify_say'}}(@a); 
+          },
+          'args'=>[$_[1]{irc},$_[2]{where},$1]});
+        }
+      },
     },
     '^Say (.+)$' => {
       'tags' => ['misc'],
