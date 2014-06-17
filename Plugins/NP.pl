@@ -7,7 +7,7 @@ addPlug("Foobar",{
   'utilities' => {
     'timer' => sub {
       # Input!
-      lkDebug("Timer works!");
+      #lkDebug("Timer works!");
       &{$utility{'Foobar_getInfo'}};
       foreach(values %{$lk{tmp}{plugin}{'Foobar'}{handles}}) {
         if(${$_}{auto}) {
