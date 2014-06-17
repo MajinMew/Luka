@@ -21,6 +21,7 @@ addPlug('Git', {
         system('git add *.pl');
         system('git add *.bat');
         system('git commit -m "'.$message.'"');
+        ## This doesn't work... it'll try to push but it's not getting output.
         my @output = split /\n|\r/, `git push`;
         my $error = 0;
         foreach(@output) {
@@ -42,17 +43,15 @@ addPlug('Git', {
       'tags' => ['utility'],
       'code' => sub {
         my @output = split /\n|\r/, `git pull`;
-        my @files = ();
+        my $changes = 0;
         foreach(@output) {
           chomp($_);
           lkDebug($_);
-          if(/\#\s+modified\:\s+(.+)$/) {
-            my $name = $1;
-            $name =~ s/.+[\\\/](.+)/$1/g;
-            push(@files,$1);
+          if(/(\d) file changed/i) {
+            my $changes = $1;
           }
         }
-        &{$utility{'Fancify_say'}}($_[1]{irc},$_[2]{where},"Pulled latest updates from >>Github with message");
+        &{$utility{'Fancify_say'}}($_[1]{irc},$_[2]{where},"Pulled latest updates from >>Github. $changes changes made.");
       }
     },
     '^Git status$' => {
@@ -65,7 +64,7 @@ addPlug('Git', {
         my @files = ();
         foreach(@output) {
           chomp($_);
-          lkDebug($_);
+          lkDebug('Got: '.$_);
           if(/\#\s+modified\:\s+(.+)$/) {
             my $name = $1;
             $name =~ s/.+[\\\/](.+)/$1/g;
