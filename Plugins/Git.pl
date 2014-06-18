@@ -39,7 +39,7 @@ addPlug('Git', {
           &{$utility{'Fancify_say'}}($_[1]{irc},$_[2]{where},"Pushed failed. Need to \x04git pull\x04 first.");
         }
         else {
-          &{$utility{'Fancify_say'}}($_[1]{irc},$_[2]{where},"Pushed latest updates to >>Github with message \"$message\"");
+          &{$utility{'Fancify_say'}}($_[1]{irc},$_[2]{where},"Pushed latest updates to >>Github with message \x04\"$message\"\x04");
         }
       }
     },

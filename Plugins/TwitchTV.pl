@@ -12,12 +12,13 @@ addPlug("TwitchTV",{
       my $user = $_[2];
       my $json = get('http://api.justin.tv/api/stream/list.json?channel='.$user);
       $json =~ s/^\[|\]$//g;
-      my %twitch = %{decode_json($json)};
-      if(($twitch{stream_type}) && ($twitch{stream_type} =~ /live/)) {
+      my %twitch;
+      eval { %twitch = %{decode_json($json)}; };
+      if($@) { &{$utility{'Fancify_say'}}($_[0],$_[1],">>$user is offline. [\x04According to the API\x04] [http://twitch.tv/$user]"); return 0; }
+      else {
         &{$utility{'Fancify_say'}}($_[0],$_[1],"[>>$twitch{channel_count}] $twitch{title} [\x04$twitch{meta_game}\x04] [http://twitch.tv/$user]");
         return 1;
       }
-      else { &{$utility{'Fancify_say'}}($_[0],$_[1],"$_[2] is not currently live. [According to the API]"); return 0; }
     },
   },
   'commands' => {
