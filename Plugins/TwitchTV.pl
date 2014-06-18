@@ -22,9 +22,9 @@ addPlug("TwitchTV",{
       }
       my $s = "";
       if ($twitch_stream_type ne "?") {
-        $s = "[\x04$twitch_channel_count\x04] $twitch_status [\x04$twitch_meta_game\x04] [ http://twitch.tv/\x04$twitch_title\x04 ]";
+        $s = "[\x04$twitch_channel_count\x04] $twitch_status [\x04$twitch_meta_game\x04] [http://twitch.tv/$twitch_title]";
       } else {
-        $s = "\x04$twitch_title\x04 is offline. [\x04According to the API\x04] [ http://twitch.tv/\x04$twitch_title\x04 ]";
+        $s = "\x04$twitch_title\x04 is offline. [\x04According to the API\x04] [http://twitch.tv/$twitch_title]";
       }
       foreach (@keep) { undef ${"$_"}; } undef @keep;
       return $s;

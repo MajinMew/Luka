@@ -10,6 +10,12 @@ addPlug('Git', {
     }
   },
   'commands' => {
+    '^Git$' => {
+      'description' => "Links to the repository.",
+      'code' => sub {
+        &{$utility{'Fancify_say'}}($_[1]{irc},$_[2]{where},"Luka's Source is over here: https://github.com/Caaz/Luka");
+      },
+    },
     '^Git push( .+)?$' => {
       'description' => "Pushes latest updates to Github",
       'access' => 3,
@@ -26,7 +32,7 @@ addPlug('Git', {
         my $error = 0;
         foreach(@output) {
           chomp($_);
-          lkDebug('Got "'.$_.'"');
+          lkDebug('Got: "'.$_.'"');
           if(/Rejected/i) { lkDebug("Error"); $error = 1; }
         }
         if($error) {
