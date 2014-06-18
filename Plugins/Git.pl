@@ -38,7 +38,7 @@ addPlug('Git', {
       }
     },
     '^Git pull$' => {
-      'description' => "Pushes latest updates to Github",
+      'description' => "Pulls latest updates from Github",
       'access' => 3,
       'tags' => ['utility'],
       'code' => sub {
@@ -47,7 +47,7 @@ addPlug('Git', {
         foreach(@output) {
           chomp($_);
           lkDebug($_);
-          if(/(\d) file changed/i) {
+          if(/(\d) files? changed/i) {
             my $changes = $1;
           }
         }

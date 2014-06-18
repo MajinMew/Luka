@@ -177,6 +177,16 @@ addPlug('Core_Owner',{
         lkRaw($_[1]{irc},"PRIVMSG $_[2]{where} :Reloaded. (".(time - $startTime)." seconds, $errors errors)");
       }
     },
+    '^Refresh$' => {
+      'tags' => ['utility'],
+      'description' => "Forcibly reloads all the things.",
+      'access' => 3,
+      'code' => sub {
+        lkUnloadPlugins();
+        my $errors = lkLoadPlugins();
+        lkRaw($_[1]{irc},"PRIVMSG $_[2]{where} :Reloaded. (".(time - $startTime)." seconds, $errors errors)");
+      }
+    },
     '^Autojoin (\#.+)$' => {
       'tags' => ['utility'],
       'description' => "Adds or removes channels from autojoin.",
@@ -266,9 +276,8 @@ addPlug('Core_Utilities',{
       # Input: \%hash;
       my %hash = %{ shift(); };
       lkDebug("DEBUG");
-      foreach(keys %hash) {
-        lkDebug("$_ => $hash{$_}");
-      }
+      my @keys = keys %hash; @keys = sort @keys;
+      foreach(@keys) { lkDebug("$_ => $hash{$_}"); }
     },
     'parse' => sub {
       # Input: @Msg

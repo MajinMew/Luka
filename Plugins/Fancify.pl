@@ -2,11 +2,28 @@ addPlug("Fancify", {
   'creator' => 'Caaz',
   'version' => '3',
   'name' => 'Fancify',
+  'dependencies' => ['Core_Command'],
+  'commands' => {
+    '^Fancify (\d{1,2}, \d{1,2})$' => {
+      'description' => "Changes Fancify colors.",
+      'access' => 3,
+      'code' => sub {
+        my @colors = split /\,/, $1;
+        foreach(@colors) { $color = '0'.$color if($color<10); }
+        @{$lk{data}{plugins}{'Fancify'}{colors}} = @colors;
+        &{$lk{plugin}{"Fancify"}{utilities}{say}}($_[1]{irc},$_[2]{parsed},"Updated colors");
+      }
+    }
+  },
   'utilities' => {
     'main' => sub {
-      my $string = "\cC14".$_[0];
-      my @colors = ('14','13');
+      my @colors;
+      if(@{$lk{data}{plugins}{'Fancify'}{colors}}) {
+        @colors = @{$lk{data}{plugins}{'Fancify'}{colors}};
+      }
+      else { @colors = (14,13); }
       my $color = 0;
+      my $string = "\cC$colors[0]".$_[0];
       my @string = split //, $string;
       foreach(@string) { if(/\x04/) { $color++; if($color >= @colors) { $color = 0; } $_ = "\cC$colors[$color]"; } }
       $string = join "", @string;
