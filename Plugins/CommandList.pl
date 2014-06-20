@@ -50,7 +50,7 @@ addPlug("Command_Helper", {
       else { 
         push(@{$content{body}},"This bot doesn't have any information! Tell the owner to set info to a filename for this to be filled in with its contents.");
       }
-      push(@{$content{body}},'</div>','</div>');
+      push(@{$content{body}},'<div class="timestamp">','Command listing as of '.localtime(), '</div>', '</div>','</div>');
       
       # Grab command list, by plugin.
       my %commands;
@@ -113,7 +113,8 @@ addPlug("Command_Helper", {
   },
   'commands' => {
     '^(?:Commands|Help|CinosLearnRegex)$' => {
-      'description' => "Changes Fancify colors.",
+      'description' => "Generates an HTML and gives a url to it.",
+      'tags' => ['utility'],
       'code' => sub {
         &{$utility{'Command_Helper_generateHTML'}}($_[1]{irc},$_[2]{where});
       }

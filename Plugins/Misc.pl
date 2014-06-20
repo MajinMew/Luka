@@ -177,6 +177,7 @@ addPlug("Misc_Commands", {
         my ($time, $command) = ($1,$2);
         if($command =~ /^say (.+)/i) {
           addTimer(time+$time, {
+          'name' => "User Timer",
           'code' => sub { 
             lkDebug($_[1]);
             my @a = @{$_[1]}; 
