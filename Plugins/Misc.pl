@@ -170,56 +170,6 @@ addPlug("Misc_Commands", {
         lkRaw($_[1]{irc},"TOPIC $_[2]{where} :".&{$utility{'Fancify_main'}}($1));
       }
     },
-    '^Commands$' => {
-      'tags' => ['utility','misc'],
-      'description' => 'Links you here.',
-      'code' => sub {
-        my %commands;
-        foreach $plugin (keys %{$lk{plugin}}) {
-          foreach $regex (keys %{$lk{plugin}{$plugin}{commands}}) {
-            push(@{$commands{$plugin}}, $regex) if $lk{plugin}{$plugin}{commands}{$regex}{description};
-          }
-        }
-        my $html = '<html><head><title>'.$lk{version}.' Commands</title><script type="text/javascript" src="//code.jquery.com/jquery-latest.js"></script><script type="text/javascript" src="https://dl.dropboxusercontent.com/u/7503868/commands/fancy_luka.js"></script> <link rel="stylesheet" type="text/css" href="style.css"></head><body><img class="luka" src="Luka.png"><div class="content">';
-        
-        $html .= '<div class="command"><div class="regex"><h2>'.$lk{version}.'</h2></div><div class="info">';
-        open LUKA, "<./LukaInfo.txt";
-        while(<LUKA>) { $html .= $_."<br />"; }
-        close LUKA;
-        $html .= '</div></div>';
-        #&{$utility{'Fancify_say'}}($_[1]{irc},$_[2]{where},"[\x04".(join "\x04] [\x04", @commands)."\x04]");
-        my @plugins = sort keys %commands;
-        foreach $plugin (@plugins) {
-          my $pluginName = $plugin;
-          $html .= '<div class="command"><div class="regex">'.$lk{plugin}{$plugin}{name}.'</div><div class="info">';
-          $html .= 'Creator: '.$lk{plugin}{$plugin}{creator}.'<br />' if($lk{plugin}{$plugin}{creator});
-          $html .= 'Version: '.$lk{plugin}{$plugin}{version}.'<br />' if($lk{plugin}{$plugin}{version});
-          $html .= 'Description: '.$lk{plugin}{$plugin}{description}.'<br />' if($lk{plugin}{$plugin}{description});
-          @{$commands{$plugin}} = sort @{$commands{$plugin}};
-          foreach (@{$commands{$plugin}}) {
-            my $friendly = $_;
-            $friendly =~ s/^\^|\$$//g;
-            $html .= 
-            '<div class="command">
-            <div class="regex">/^'.$lk{data}{prefix}.$friendly.'$/i';
-            foreach(@{$lk{plugin}{$plugin}{commands}{$_}{tags}}) { $html .= '<span class="tag_'.$_.'">'.$_.'</span>'; }
-            $html .= '<span class="tag_access">Access: '.$lk{plugin}{$plugin}{commands}{$_}{access}.'</span>' if($lk{plugin}{$plugin}{commands}{$_}{access});
-            $html .= '<span class="tag_cooldown">Cooldown: '.$lk{plugin}{$plugin}{commands}{$_}{cooldown}.'</span>' if($lk{plugin}{$plugin}{commands}{$_}{cooldown});
-            $html .= '</div><div class="info">';
-            
-            $html .= $lk{plugin}{$plugin}{commands}{$_}{description}.'</br>' if($lk{plugin}{$plugin}{commands}{$_}{description});
-            $html .= 'Example: <pre>'.$lk{plugin}{$plugin}{commands}{$_}{example}.'</pre>' if($lk{plugin}{$plugin}{commands}{$_}{example});
-            $html .= '</div></div>';
-          }
-          $html .= '</div></div>';
-        }
-        $html .= '</div></body></html>';
-        open HTML, ">C:/Users/Caaz/Dropbox/Public/Luka/Commands.html";
-        print HTML $html;
-        close HTML;
-        &{$utility{'Fancify_say'}}($_[1]{irc},$_[2]{where},"List of commands? Here you go. https://dl.dropboxusercontent.com/u/9305622/Luka/Commands.html");
-      }
-    },
     '^Timer (\d+) (.+)$' => {
       'tags' => ['misc','utility'],
       'description' => "Issues a timer! Available options are say and action.",

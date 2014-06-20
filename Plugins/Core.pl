@@ -72,64 +72,6 @@ addPlug('Core_Command', {
     },
   }
 });
-addPlug('Core_Help', {
-  'creator' => 'Caaz',
-  'version' => '1',
-  'name' => 'Core Help',
-  'description' => 'This plugin was created for the usage of a help system with topics. It should be used to cover a wide arrange of topics that would be difficult to explain in command help.',
-  'dependencies' => ['Core_Utilities'],
-  'commands' => {
-    '^Help(.+)?$' => {
-      'tags' => ['utility'],
-      'description' => "This command is used to show help topics. You can get more info on specific topics using this.",
-    }
-  },
-  'code' => {
-    'irc' => sub {
-      my %irc = %{$_[0]};
-      if($irc{msg}[1] =~ /^PRIVMSG$/i) {
-        my %parsed = %{&{$lk{plugin}{'Core_Utilities'}{utilities}{parse}}(@{$irc{msg}})};
-        my $network = $lk{data}{networks}[$lk{tmp}{connection}{fileno($irc{irc})}]{name};
-        if($parsed{msg} =~ /^$lk{data}{prefix}(.+)$/i) {
-          my $com = $1;
-          if($com =~ /^help(.+)?$/i) {
-            my $helpString = $1;
-            if($helpString) {
-              $helpString =~ s/^\s//g;
-              # Got some help string... Get more info on a command, probably.
-              my $caught;
-              foreach $plugin (keys %{$lk{plugin}}) {
-                foreach(keys %{$lk{plugin}{$plugin}{help}}) {
-                  if($helpString =~ /$_/i) {
-                    $caught++;
-                    lkRaw($irc{irc},"PRIVMSG $parsed{where} :$_ - $lk{plugin}{$plugin}{help}{$_}");
-                  }
-                }
-              }
-              if(!$caught) {
-                lkRaw($irc{irc},"PRIVMSG $parsed{where} :No such topic found, sorry.");
-              }
-            }
-            else {
-              # No help string, list available commands?
-              my @topics;
-              foreach(keys %{$lk{plugin}}) {
-                push(@topics, keys %{$lk{plugin}{$_}{help}});
-              }
-              if(!@topics) {
-                lkRaw($irc{irc},"PRIVMSG $parsed{where} :There's no help topics available! Bother the owner about this.");
-              }
-              else {
-                sort(@topics);
-                lkRaw($irc{irc},"PRIVMSG $parsed{where} :Topics: ".join ", ", @topics);
-              }
-            }
-          }
-        }
-      }
-    },
-  }
-});
 addPlug('Core_CTCP', {
   'creator' => 'Caaz',
   'version' => '1',
