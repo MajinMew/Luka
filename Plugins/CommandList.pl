@@ -35,13 +35,13 @@ addPlug("Command_Helper", {
       # Then the body
       
       # First, let's get bot info, if there is any.
+      push(@{$content{body}},'<img class="mascot" src="'.$custom{image}.'" />') if $custom{image};
       push(@{$content{body}},'<div class="content">');
       push(@{$content{body}},'<div class="title">');
       if($custom{name}) { push(@{$content{body}},'<h2 class="name">',"$custom{name} Commands",'</h2>'); }
       else { push(@{$content{body}},'<h2 class="name">','Bot Commands','</h2>'); }
       push(@{$content{body}},'</div>');
       push(@{$content{body}},'<div class="info">');
-      push(@{$content{body}},'<img class="mascot" src="'.$custom{image}.'" />') if $custom{image};
       if($custom{info}) {
         open INFO, "<$custom{info}";
         while(<INFO>) { chomp($_); $_ =~ s/^\s//g; push(@{$content{body}},$_."<br />"); }
@@ -63,10 +63,12 @@ addPlug("Command_Helper", {
       my @plugins = sort keys %commands;
       foreach $plugin (@plugins) {
         push(@{$content{body}},'<div class="content">');
-        push(@{$content{body}},'<div class="title">',$lk{plugin}{$plugin}{name},'</div>');
+        push(@{$content{body}},'<div class="title">',$lk{plugin}{$plugin}{name});
+        push(@{$content{body}},' v'.$lk{plugin}{$plugin}{version}) if $lk{plugin}{$plugin}{version};
+        push(@{$content{body}},'</div>');
         # Get plugin information!
         push(@{$content{body}},'<div class="info">');
-        foreach(['creator','Creator'],['version','Version'],['description','Description']) {
+        foreach(['creator','Creator'],['description','Description']) {
           push(@{$content{body}},'<div class="'.${$_}[0].'">',${$_}[1].': '.$lk{plugin}{$plugin}{${$_}[0]},'</div>') if $lk{plugin}{$plugin}{${$_}[0]};
         }
         # Look at the commands!
@@ -112,7 +114,7 @@ addPlug("Command_Helper", {
     },
   },
   'commands' => {
-    '^(?:Commands|Help|CinosLearnRegex)$' => {
+    '^(?:Commands|Help|(?:Cinos|Isk)?LearnRegex)$' => {
       'description' => "Generates an HTML and gives a url to it.",
       'tags' => ['utility'],
       'code' => sub {

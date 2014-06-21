@@ -6,6 +6,7 @@ addPlug("Fancify", {
   'commands' => {
     '^Fancify (\d{1,2}, \d{1,2})$' => {
       'description' => "Changes Fancify colors.",
+      'tags' => ['utility'],
       'access' => 3,
       'code' => sub {
         my @colors = split /\, /, $1;

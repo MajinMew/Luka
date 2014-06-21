@@ -23,7 +23,7 @@ addPlug("TwitchTV",{
   },
   'commands' => {
     '^Twitch (\w+)$' => {
-      'tags' => ['media', 'utility'],
+      'tags' => ['media', 'utility', 'repod'],
       'description' => "Display information about TwitchTV streams manually.",
       'example' => "twitch twitch",
       'code' => sub {

@@ -199,7 +199,7 @@ addPlug("Misc_Commands", {
       'code' => sub { &{$utility{'Fancify_action'}}($_[1]{irc},$_[2]{where},$1); }
     },
     '^RandName$' => {
-      'tags' => ['misc'],
+      'tags' => ['misc','utility'],
       'description' => "Gets a random name.",
       'code' => sub { &{$utility{'Fancify_say'}}($_[1]{irc},$_[2]{where},&{$utility{'Caaz_Utilities_randName'}}); }
     },
