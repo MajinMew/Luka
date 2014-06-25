@@ -19,7 +19,7 @@ addPlug("Fancify", {
   'utilities' => {
     'main' => sub {
       my @colors;
-      if(@{$lk{data}{plugins}{'Fancify'}{colors}}) {
+      if($lk{data}{plugins}{'Fancify'}{colors}) {
         @colors = @{$lk{data}{plugins}{'Fancify'}{colors}};
       }
       else { @colors = (14,13); }

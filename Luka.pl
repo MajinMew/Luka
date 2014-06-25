@@ -14,7 +14,7 @@ $lk{select} = IO::Select->new();
 ($lk{directory} = abs_path($0)) =~ s/([\\\/])[^\\\/]+?\.pl$/$1/;
 lkDebug($lk{directory});
 chdir($lk{directory}) or warn "Couldn't chdir to $lk{directory}.";
-eval("use Android"); if($@){ $lk{os} = $^O; } else { $lk{os} = "droid"; eval('$lk{droid} = Android->new();'); }
+eval("use Android"); if($@){ $lk{os} = $^O; } else { $lk{os} = "android"; eval('$lk{droid} = Android->new();'); }
 if(!lkLoad()) {
   lkDebug("You don't have any save file! You must be new here! Welcome to Luka.");
   print "I'll need a prefix for this bot! This prefix is used globally for commands. it's gonna be thrown into regex matches, so keep that in mind.\n>";
@@ -136,6 +136,7 @@ sub lkConnect {
       else {
         $lk{tmp}{connection}{fileno($connection)} = $i;
         $lk{tmp}{filehandles}{fileno($connection)} = $connection;
+        sleep 1;
         lkRaw($connection,"USER ${$_}{username} * * :${$_}{realname}","NICK ${$_}{nickname}");
         $lk{select}->add($connection);
       }
@@ -182,6 +183,7 @@ sub lkConnect {
         if($ignore) { next; }
         lkDebug($lk{data}{networks}[$lk{tmp}{connection}{fileno($fh)}]{name}.':'.(join ":", @msg));
         if($rawmsg =~ /^PING(.+)$/i) { lkRaw($fh,"PONG$1"); lkSave(); }
+        # Rizon:irc.cccp-project.net:433:*:Luka:Nickname is already in use.
         if($msg[1] =~ /^001$/) {
           # Connected. Do nickserv stuff if needed!
           lkRaw($fh, "PRIVMSG Nickserv :id ".$lk{data}{networks}[$lk{tmp}{connection}{fileno($fh)}]{nickserv}) if($lk{data}{networks}[$lk{tmp}{connection}{fileno($fh)}]{nickserv});

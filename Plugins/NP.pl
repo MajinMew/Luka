@@ -151,7 +151,7 @@ addPlug("Foobar",{
         if(!$caught) { &{$utility{'Fancify_say'}}($_[1]{irc},$_[2]{where},"$server not found."); }
       }
     },
-    '^NP add (\w+) (.+?)(\:\d)?$' => {
+    '^NP add (.+?) (.+?)(\:\d)?$' => {
       'tags' => ['utility','media'],
       'description' => "Adds a server to NP",
       'example' => "NP add Name some.ip.address:3333",

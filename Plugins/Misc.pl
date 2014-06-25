@@ -8,11 +8,13 @@ addPlug("Caaz_Utilities", {
     'randName' => sub {
       my $url = 'http://www.behindthename.com/random/random.php?';
       if($_[0]) {
+        lkDebug('Using Params');
         my @params;
         foreach(keys %{$_[0]}){ push(@params,"$_=$_[0]{$_}"); }
         $url .= join '&', @params;
       }
-      else { $url .= 'number=1&gender=both&surname=&all=no&usage_eng=yes'; }
+      else { lkDebug("Using default."); $url .= 'number=1&gender=both&surname=&all=no&usage_eng=1'; }
+      lkDebug($url);
       if(get($url) =~ /\<span class=\"heavyhuge\"\>(.+?)\<\/span\>/is) {
         my $capture = $1;
         my @name;

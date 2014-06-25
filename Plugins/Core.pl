@@ -240,9 +240,9 @@ addPlug('Core_Utilities',{
         if($lk{data}{networks}[$lk{tmp}{connection}{$_}]{name} =~ /^$_[0]$/i) {
           return $lk{tmp}{filehandles}{$_};
         }
-        lkDebug("$_ => $lk{data}{networks}[$lk{tmp}{connection}{$_}]{name}");
       }
-    }
+    },
+    'shuffle' => sub { my $deck = shift; return unless @$deck; my $i = @$deck; while (--$i) { my $j = int rand ($i+1); @$deck[$i,$j] = @$deck[$j,$i]; } }
   }
 });
 addPlug('Core_Users',{
