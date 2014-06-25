@@ -71,7 +71,7 @@ addPlug('Git', {
         foreach(@output) {
           chomp($_);
           lkDebug('Got: '.$_);
-          if(/\#\s+modified\:\s+(.+)$/) {
+          if(/\#\s+(?:modified|new file)\:\s+(.+)$/i) {
             my $name = $1;
             $name =~ s/.+[\\\/](.+)/$1/g;
             push(@files,$1);
