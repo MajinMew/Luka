@@ -203,7 +203,7 @@ addPlug("Misc_Commands", {
     '^RandName$' => {
       'tags' => ['misc','utility'],
       'description' => "Gets a random name.",
-      'code' => sub { &{$utility{'Fancify_say'}}($_[1]{irc},$_[2]{where},&{$utility{'Caaz_Utilities_randName'}}); }
+      'code' => sub { &{$utility{'Fancify_say'}}($_[1]{irc},$_[2]{where},&{$utility{'Caaz_Utilities_randName'}}()); }
     },
     '^Piglatin (.+)$' => {
       'tags' => ['misc'],

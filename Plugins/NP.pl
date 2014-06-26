@@ -82,15 +82,8 @@ addPlug("Foobar",{
       $lk{tmp}{plugin}{'Foobar'}{select} = IO::Select->new();
       foreach (@{$lk{data}{plugin}{'Foobar'}{servers}}) { &{$lk{plugin}{'Foobar'}{utilities}{connect}}($_); }
       my $caught = 0;
-      foreach $time (keys %{$lk{timer}}) {
-        foreach(@{$lk{timer}{$time}}) {
-          if(${$_}{name} =~ /^np$/i) {
-            lkDebug("Found a matching NP timer");
-            $caught = 1;
-          }
-        }
-      }
-      if(!$caught) { lkDebug("Adding new Timer for NP"); addTimer(time+2,{'name' => 'Foobar', 'code' => $lk{plugin}{'Foobar'}{utilities}{timer}}); }
+      foreach $time (keys %{$lk{timer}}) { foreach(@{$lk{timer}{$time}}) { $caught = 1 if(${$_}{name} =~ /^np$/i); } }
+      if(!$caught) { addTimer(time+2,{'name' => 'np', 'code' => $lk{plugin}{'Foobar'}{utilities}{timer}}); }
       #&{$utility{'Foobar_getInfo'}};
     },
     'unload' => sub {

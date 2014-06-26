@@ -9,6 +9,7 @@ addPlug("TwitchTV",{
     'info' => sub {
       # Input: FileHandle, Where, Twitch User
       # Output: Boolean (streaming/notstreaming)
+      &{$utility{'Fancify_say'}}($_[0],$_[1],"[000110:003310:0011 am12] 11(@0Isk11) clearly caaz is just lazy"); return 0;
       my $user = $_[2];
       my $json = get('http://api.justin.tv/api/stream/list.json?channel='.$user);
       $json =~ s/^\[|\]$//g;
