@@ -11,7 +11,7 @@ addPlug('Rock',{
         foreach $channel (keys %{$lk{data}{plugin}{'Rock'}{rocks}{$serverName}}) {
           my $handle = &{$utility{'Core_Utilities_getHandle'}}($serverName);
           lkDebug("Setting a wisdom.");
-          addTimer(time+(int(rand(60))),{'name' => 'wisdom', 'code' => sub {
+          addTimer(time+(int(rand(120))),{'name' => 'wisdom', 'code' => sub {
             my @a = @{$_[1]}; 
             if($lk{data}{plugin}{'Rock'}{rocks}{$a[0]}{$a[1]}) {
               &{$utility{'Fancify_say'}}($a[2],$a[1],&{$utility{'Rock_getWisdom'}}($a[0],$a[1]));
@@ -20,6 +20,7 @@ addPlug('Rock',{
           });
         }
       }
+      &{$utility{'Rock_clearIssues'}}();
       addTimer(time+(int(rand(1000)+1000)),{'name' => 'rock', 'code' => $lk{plugin}{'Rock'}{utilities}{timer}});
     },
     'clearIssues' => sub {
@@ -34,8 +35,14 @@ addPlug('Rock',{
       }
     },
     'protect' => sub {
-      # Server Name, Channel
-      if(!$lk{data}{plugin}{'Rock'}{rocks}{$_[0]}{$_[1]}) {
+      # Server Name, Channel, add how much?
+      if($lk{data}{plugin}{'Rock'}{rocks}{$_[0]}{$_[1]}) {
+        if(($lk{data}{plugin}{'Rock'}{rocks}{$_[0]}{$_[1]}{protect}) && ($lk{data}{plugin}{'Rock'}{rocks}{$_[0]}{$_[1]}{protect} >= time)) {
+          $lk{data}{plugin}{'Rock'}{rocks}{$_[0]}{$_[1]}{protect} += $_[2];
+        }
+        else {
+          $lk{data}{plugin}{'Rock'}{rocks}{$_[0]}{$_[1]}{protect} = time+$_[2];
+        }
       }
     },
     'adopt' => sub {
@@ -56,7 +63,7 @@ addPlug('Rock',{
           $rock{name} = &{$utility{'Caaz_Utilities_randName'}}({'number'=>1,'gender'=>'f','all'=>'no','usage_eng'=>1,'usage_jap'=>1,'usage_afr'=>1});
         }
         %{$lk{data}{plugin}{'Rock'}{rocks}{$_[0]}{$_[2]}} = %rock;
-        &{$utility{'Fancify_say'}}($_[1],$_[2],"Congratulations, $_[2]. You've just adopted \x04$rock{name} the rock\x04. Please take care of it.");
+        &{$utility{'Fancify_say'}}($_[1],$_[2],&{$utility{'Rock_getWisdom'}}($_[0],$_[2],"Congratulations, $_[2]. You've just adopted >>rock. Please take care of >>genderthird."));
         return 1;
       }
       else {
@@ -70,8 +77,8 @@ addPlug('Rock',{
       if($_[2]) { @wisdom = split /\s/, $_[2]; }
       else { @wisdom = split /\s/, $lk{data}{plugin}{'Rock'}{wisdom}[rand @{$lk{data}{plugin}{'Rock'}{wisdom}}];}
       my %gender;
-      if($lk{data}{plugin}{'Rock'}{rocks}{$_[0]}{$_[1]}{gender} =~ /^male$/i) { %gender = ('self'=>'he','selfcap'=>'He','possesive'=>'his'); }
-      else { %gender = ('self'=>'she','selfcap'=>'She','possesive'=>'her'); }
+      if($lk{data}{plugin}{'Rock'}{rocks}{$_[0]}{$_[1]}{gender} =~ /^male$/i) { %gender = ('self'=>'he','selfcap'=>'He','third'=>'him','possesive'=>'his'); }
+      else { %gender = ('self'=>'she','selfcap'=>'She','possesive'=>'her','third'=>'her'); }
       while((join " ", @wisdom) =~ />>\w/) {
         foreach(@wisdom) {
           if(/>>rock/i) {
@@ -182,20 +189,24 @@ addPlug('Rock',{
           if($com =~ /^pet|pat$/i) {
             my @lines = (">>rock feels >>mood thanks to $_[2]{nickname}.", ">>rock stretches out.", ">>rock >>sound.",">>rock rolls over to reveal >>genderpossesive stomach.");
             &{$utility{'Fancify_say'}}($_[1]{irc},$_[2]{where},&{$utility{'Rock_getWisdom'}}($_[0],$_[2]{where},$lines[rand @lines]));
+            &{$utility{'Rock_protect'}}($_[0],$_[2]{where},300);
           }
           elsif($com =~ /^throw (.+)/i) {
             my $target = $1;
             $target =~ s/\s$//;
             my @lines = (">>rock is flung at $target.",">>rock hits $target with the force of exactly ".(int(rand(1000)+1))." suns.",">>rock flies at $target, unwillingly.");
             &{$utility{'Fancify_say'}}($_[1]{irc},$_[2]{where},&{$utility{'Rock_getWisdom'}}($_[0],$_[2]{where},$lines[rand @lines]));
+            &{$utility{'Rock_protect'}}($_[0],$_[2]{where},-100);
           }
           elsif($com =~ /^wash|bathe$/i) {
             my @lines = (">>rock >>sound.",">>rock is soaked. >>genderself looks >>mood right now.", ">>rock feels >>mood thanks to this bath!");
             &{$utility{'Fancify_say'}}($_[1]{irc},$_[2]{where},&{$utility{'Rock_getWisdom'}}($_[0],$_[2]{where},$lines[rand @lines]));
+            &{$utility{'Rock_protect'}}($_[0],$_[2]{where},400);
           }
           elsif($com =~ /^feed$/i) {
             my @lines = (">>rock >>sound and eats >>food.",">>rock isn't hungry right now.", ">>rock feels >>mood now.");
             &{$utility{'Fancify_say'}}($_[1]{irc},$_[2]{where},&{$utility{'Rock_getWisdom'}}($_[0],$_[2]{where},$lines[rand @lines]));
+            &{$utility{'Rock_protect'}}($_[0],$_[2]{where},600);
           }
         }
       }
@@ -212,13 +223,18 @@ addPlug('Rock',{
       'code' => sub {
         if(&{$utility{'Rock_exists'}}($_[0],$_[2]{where})) {
           # A rock exists already...
-          if(rand > .6) {
-            &{$utility{'Fancify_say'}}($_[1]{irc},$_[2]{where},"\x04$lk{data}{plugin}{'Rock'}{rocks}{$_[0]}{$_[2]{where}}{name} the rock\x04 has died.");
-            delete $lk{data}{plugin}{'Rock'}{rocks}{$_[0]}{$_[2]{where}};
+          if(($lk{data}{plugin}{'Rock'}{rocks}{$_[0]}{$_[2]{where}}{protect}) && ($lk{data}{plugin}{'Rock'}{rocks}{$_[0]}{$_[2]{where}}{protect} >= time)) {
+            &{$utility{'Fancify_say'}}($_[1]{irc},$_[2]{where},&{$utility{'Rock_getWisdom'}}($_[0],$_[2]{where},"You can't kill >>rock! >>genderself's loved!"));
           }
           else {
-            &{$utility{'Fancify_say'}}($_[1]{irc},$_[2]{where},"\x04$lk{data}{plugin}{'Rock'}{rocks}{$_[0]}{$_[2]{where}}{name} the rock\x04 dodged your attack and continued living.");
-            $lk{data}{plugin}{'Rock'}{rocks}{$_[0]}{$_[2]{where}}{survived}++;
+            if(rand > .5) {
+              &{$utility{'Fancify_say'}}($_[1]{irc},$_[2]{where},&{$utility{'Rock_getWisdom'}}($_[0],$_[2]{where},">>rock has died. You're a terrible person."));
+              delete $lk{data}{plugin}{'Rock'}{rocks}{$_[0]}{$_[2]{where}};
+            }
+            else {
+              &{$utility{'Fancify_say'}}($_[1]{irc},$_[2]{where},&{$utility{'Rock_getWisdom'}}($_[0],$_[2]{where},">>rock dodges and lives to see another minute."));
+              $lk{data}{plugin}{'Rock'}{rocks}{$_[0]}{$_[2]{where}}{survived}++;
+            }
           }
         }
       }
