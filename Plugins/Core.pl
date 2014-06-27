@@ -44,13 +44,8 @@ addPlug('Core_Command', {
             foreach $regex (keys %{$lk{plugin}{$plugin}{commands}}) {
               if($com =~ /$regex/i) {
                 if($lk{plugin}{$plugin}{commands}{$regex}{cooldown}) {
-                  if(($lk{tmp}{plugin}{'Core_Command'}{cooldown}{$parsed{nickname}}{$regex}) && ($lk{tmp}{plugin}{'Core_Command'}{cooldown}{$parsed{nickname}}{$regex} > time)) {
-                    lkDebug("COOLDOWN");
-                    return 1;
-                  }
-                  else {
-                    $lk{tmp}{plugin}{'Core_Command'}{cooldown}{$parsed{nickname}}{$regex} = time + $lk{plugin}{$plugin}{commands}{$regex}{cooldown};
-                  }
+                  if(($lk{tmp}{plugin}{'Core_Command'}{cooldown}{$parsed{username}}{$regex}) && ($lk{tmp}{plugin}{'Core_Command'}{cooldown}{$parsed{username}}{$regex} > time)) { return 1; }
+                  else { $lk{tmp}{plugin}{'Core_Command'}{cooldown}{$parsed{username}}{$regex} = time + $lk{plugin}{$plugin}{commands}{$regex}{cooldown}; }
                 }
                 if($lk{plugin}{$plugin}{commands}{$regex}{access}) {
                   my $acc = &{$lk{plugin}{'Core_Users'}{utilities}{'isLoggedIn'}}($network,$parsed{nickname});
