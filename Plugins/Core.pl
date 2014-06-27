@@ -134,6 +134,7 @@ addPlug('Core_Owner',{
         my $deleted = 0;
         foreach(@{$lk{data}{networks}[$lk{tmp}{connection}{fileno($_[1]{irc})}]{autojoin}}) {
           if($_ =~ /^$channel$/i) {
+            lkRaw($_[1]{irc},"PART ".$lk{data}{networks}[$lk{tmp}{connection}{fileno($_[1]{irc})}]{autojoin}[$i]);
             delete $lk{data}{networks}[$lk{tmp}{connection}{fileno($_[1]{irc})}]{autojoin}[$i];
             $deleted = 1;
           }

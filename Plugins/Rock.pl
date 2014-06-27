@@ -27,7 +27,11 @@ addPlug('Rock',{
       # Server Name, Channel
       foreach $serverName (keys %{$lk{data}{plugin}{'Rock'}{rocks}}) {
         foreach $channel (keys %{$lk{data}{plugin}{'Rock'}{rocks}{$serverName}}) {
-          if(!$lk{data}{plugin}{'Rock'}{rocks}{$serverName}{$channel}{name}) { 
+          if(!(grep /$channel/, @{$lk{data}{networks}[$lk{tmp}{connection}{fileno(&{$utility{'Core_Utilities_getHandle'}}($serverName))}]{autojoin}})) {
+            lkDebug("Killed $channel");
+            delete $lk{data}{plugin}{'Rock'}{rocks}{$serverName}{$channel};
+          }
+          elsif(!$lk{data}{plugin}{'Rock'}{rocks}{$serverName}{$channel}{name}) { 
             lkDebug("Killed $channel");
             delete $lk{data}{plugin}{'Rock'}{rocks}{$serverName}{$channel};
           }
@@ -127,9 +131,18 @@ addPlug('Rock',{
         $durationString .= "$dur[0] days, " if($dur[0]);
         foreach(1,2) { while((split //, $dur[$_]) <= 1) { $dur[$_] = '0'.$dur[$_]; } }
         $durationString .= "$dur[1]:$dur[2]";
+        if(($rock{protect}) && ($rock{protect} > time)) {
+          $durationString .= " (\x04\cC09".($rock{protect}-time)."\x04)";
+        }
+        elsif(($rock{protect}) && ($rock{protect} <= time)) {
+          $durationString .= " (\x04\cC04".($rock{protect}-time)."\x04)";
+        }
+        else {
+          $durationString .= " (\x04\cC040\x04)";
+        }
         push(@rocks,"[>>$i:$_ \"\x04\cC$color$rock{name}\x04\" $durationString]");
         $i++;
-        if($i >= 10) { last; }
+        if($i >= 5) { last; }
       }
       &{$utility{'Fancify_say'}}($_[1],$_[2],"Top Rocks: ".(join " ", @rocks));
     }
@@ -196,7 +209,7 @@ addPlug('Rock',{
             $target =~ s/\s$//;
             my @lines = (">>rock is flung at $target.",">>rock hits $target with the force of exactly ".(int(rand(1000)+1))." suns.",">>rock flies at $target, unwillingly.");
             &{$utility{'Fancify_say'}}($_[1]{irc},$_[2]{where},&{$utility{'Rock_getWisdom'}}($_[0],$_[2]{where},$lines[rand @lines]));
-            &{$utility{'Rock_protect'}}($_[0],$_[2]{where},-100);
+            &{$utility{'Rock_protect'}}($_[0],$_[2]{where},-300);
           }
           elsif($com =~ /^wash|bathe$/i) {
             my @lines = (">>rock >>sound.",">>rock is soaked. >>genderself looks >>mood right now.", ">>rock feels >>mood thanks to this bath!");
