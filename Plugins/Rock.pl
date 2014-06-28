@@ -11,7 +11,7 @@ addPlug('Rock',{
         foreach $channel (keys %{$lk{data}{plugin}{'Rock'}{rocks}{$serverName}}) {
           my $handle = &{$utility{'Core_Utilities_getHandle'}}($serverName);
           lkDebug("Setting a wisdom.");
-          addTimer(time+(int(rand(120))),{'name' => 'wisdom', 'code' => sub {
+          addTimer(time+(int(rand(300))),{'name' => 'wisdom', 'code' => sub {
             my @a = @{$_[1]}; 
             if($lk{data}{plugin}{'Rock'}{rocks}{$a[0]}{$a[1]}) {
               &{$utility{'Fancify_say'}}($a[2],$a[1],&{$utility{'Rock_getWisdom'}}($a[0],$a[1]));
@@ -117,8 +117,16 @@ addPlug('Rock',{
       }
     },
     'topRocks' => sub {
-      # Server Name, handle, Channel
-      my @keys = sort { $lk{data}{plugin}{'Rock'}{rocks}{$_[0]}{$b}{protect} <=> $lk{data}{plugin}{'Rock'}{rocks}{$_[0]}{$a}{protect} } keys(%{$lk{data}{plugin}{'Rock'}{rocks}{$_[0]}});
+      # Server Name, handle, Channel, type
+      my @keys = ();
+      if($_[3] == 1) {
+        # By Protection
+        @keys = sort { $lk{data}{plugin}{'Rock'}{rocks}{$_[0]}{$b}{protect} <=> $lk{data}{plugin}{'Rock'}{rocks}{$_[0]}{$a}{protect} } keys(%{$lk{data}{plugin}{'Rock'}{rocks}{$_[0]}});
+      }
+      else {
+        # By Lifetime
+        @keys = sort { $lk{data}{plugin}{'Rock'}{rocks}{$_[0]}{$a}{born} <=> $lk{data}{plugin}{'Rock'}{rocks}{$_[0]}{$b}{born} } keys(%{$lk{data}{plugin}{'Rock'}{rocks}{$_[0]}});
+      } 
       my @rocks = ();
       $i = 1;
       foreach(@keys) { push(@rocks,"$i: ".&{$utility{'Rock_info'}}($_[0],$_, 2)); if($i >= 5) { last; } $i++; }
@@ -131,7 +139,7 @@ addPlug('Rock',{
       my %time = ( 'born' => DateTime->from_epoch(epoch => $rock{born}), 'protection' => DateTime->from_epoch(epoch => $rock{protect}), 'now' => DateTime->now() );
       my %duration = ( 'lifetime' => $time{now}->subtract_datetime($time{born}), 'protection' => $time{protection}->subtract_datetime($time{now}) );
       my %units = ( 'lifetime' => [$duration{lifetime}->in_units('days','hours','minutes','seconds')], 'protection' => [$duration{protection}->in_units('days','hours','minutes','seconds')] );
-      foreach $k ('protection','lifetime') { foreach $i (0..3) { $units{$k}[$i] =~ s/-//g; while((split //, $units{$k}[$i]) <= 1) { $units{$k}[$i] = '0'.$units{$k}[$i]; } } }
+      foreach $k ('protection','lifetime') { foreach $i (1..3) { $units{$k}[$i] =~ s/-//g; while((split //, $units{$k}[$i]) <= 1) { $units{$k}[$i] = '0'.$units{$k}[$i]; } } }
       my %string = ();
       foreach('lifetime','protection') {
         $string{$_} = "$units{$_}[0] days, " if(($units{$_}[0]) && ($units{$_}[0] > 1));
@@ -148,10 +156,10 @@ addPlug('Rock',{
         return &{$utility{'Rock_getWisdom'}}($_[0],$_[1],">>rock of >>home $string{lifetime} $string{protection}");
       }
       elsif($_[2] == 2) {
-        if(($rock{protect}) && ($rock{protect} > time)) { $string{protection} = "[\x04\cC09$string{protection}\x04]"; } else { $string{protection} = "[\x04\cC0400:00:00\x04]"; }
+        if(($rock{protect}) && ($rock{protect} > time)) { $string{protection} = " [\x04\cC09$string{protection}\x04]"; } else { $string{protection} = ""; }
         $string{lifetime} = "[\x04$string{lifetime}\x04]";
         foreach('protection','lifetime') { $string{$_} = &{$utility{'Fancify_main'}}($string{$_}); }
-        return &{$utility{'Rock_getWisdom'}}($_[0],$_[1],"\">>self\" $string{protection}");
+        return &{$utility{'Rock_getWisdom'}}($_[0],$_[1],"\">>self\" $string{lifetime}$string{protection}");
       }
       return 0;
     }
@@ -190,6 +198,16 @@ addPlug('Rock',{
       'description' => "Shows top rocks.",
       'cooldown' => 5,
       'code' => sub { &{$utility{'Rock_topRocks'}}($_[0],$_[1]{irc},$_[2]{where}); }
+    },
+    '^TopRocks (protection|lifetime|survive)$' => {
+      'tags' => ['innovative','game'],
+      'description' => "Shows top rocks.",
+      'cooldown' => 5,
+      'code' => sub {
+        my $type = $1;
+        my %types = ('protection'=>1,'life'=>0,'survive'=>1);
+        &{$utility{'Rock_topRocks'}}($_[0],$_[1]{irc},$_[2]{where},$types{$type}); 
+      }
     },
     '^Rock (.+)$' => {
       'cooldown' => 5,
