@@ -141,10 +141,10 @@ addPlug('Rock',{
           $durationString .= " (\x04\cC040\x04)";
         }
         push(@rocks,"[>>$i:$_ \"\x04\cC$color$rock{name}\x04\" $durationString]");
-        $i++;
         if($i >= 5) { last; }
+        $i++;
       }
-      &{$utility{'Fancify_say'}}($_[1],$_[2],"Top Rocks: ".(join " ", @rocks));
+      &{$utility{'Fancify_say'}}($_[1],$_[2],"There are currently >>".@keys." rocks. Here are the top 5: ".(join " ", @rocks));
     }
   },
   'code' => {
