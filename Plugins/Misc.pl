@@ -165,6 +165,11 @@ addPlug("Misc_Commands", {
     'Commands' => "The commands list is over here https://dl.dropboxusercontent.com/u/9305622/Luka/Commands.html This page is updated whenever someone uses the ~commands command."
   },
   'commands' => {
+    '^test$' => {
+      'code' => sub {
+        lkRaw($_[1]{irc},"PRIVMSG $_[2]{where} :It works?!");
+      }
+    },
     '^Topic (.*)$' => {
       'access' => 3,
       'tags' => ['utility'],
