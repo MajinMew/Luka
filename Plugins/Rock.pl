@@ -125,20 +125,34 @@ addPlug('Rock',{
         my $color; if($rock{gender} =~ /^m/i) { $color = '12'; } else { $color = '13'; }
         
         my $adopt = DateTime->from_epoch(epoch => $rock{born});
+        my $protect;
+        if($rock{protect}) {
+          $protect = DateTime->from_epoch(epoch => $rock{protect});
+        }
+        else { $protect = DateTime->from_epoch(epoch => time);
+        }
+        my $protectTime = $protect->subtract_datetime($dt);
         my $duration = $dt->subtract_datetime($adopt);
         my @dur = $duration->in_units('days','hours','minutes');
+        my @durP = $protectTime->in_units('days','hours','minutes');
         my $durationString;
-        $durationString .= "$dur[0] days, " if($dur[0]);
-        foreach(1,2) { while((split //, $dur[$_]) <= 1) { $dur[$_] = '0'.$dur[$_]; } }
+        foreach(1,2) { $durP[$_] =~ s/-//g; while((split //, $durP[$_]) <= 1) { $durP[$_] = '0'.$durP[$_]; } }
+        $durationString .= "$dur[0] days, " if($dur[0]); foreach(1,2) { while((split //, $dur[$_]) <= 1) { $dur[$_] = '0'.$dur[$_]; } }
         $durationString .= "$dur[1]:$dur[2]";
         if(($rock{protect}) && ($rock{protect} > time)) {
-          $durationString .= " (\x04\cC09".($rock{protect}-time)."\x04)";
+          $durationString .= " (\x04\cC09";
+          $durationString .= "$durP[0] days, " if($durP[0]);
+          $durationString .= "$durP[1]:$durP[2]";
+          $durationString .= "\x04)";
         }
         elsif(($rock{protect}) && ($rock{protect} <= time)) {
-          $durationString .= " (\x04\cC04".($rock{protect}-time)."\x04)";
+          $durationString .= " (\x04\cC04";
+          $durationString .= "$durP[0] days, " if($durP[0]);
+          $durationString .= "$durP[1]:$durP[2]";
+          $durationString .= "\x04)";
         }
         else {
-          $durationString .= " (\x04\cC040\x04)";
+          $durationString .= " (\x04\cC0400:00\x04)";
         }
         push(@rocks,"[>>$i:$_ \"\x04\cC$color$rock{name}\x04\" $durationString]");
         if($i >= 5) { last; }

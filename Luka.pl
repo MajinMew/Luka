@@ -182,7 +182,7 @@ sub lkConnect {
         }
         if($ignore) { next; }
         lkDebug($lk{data}{networks}[$lk{tmp}{connection}{fileno($fh)}]{name}.':'.(join ":", @msg));
-        if($rawmsg =~ /^PING(.+)$/i) { lkRaw($fh,"PONG"); lkSave(); }
+        if($rawmsg =~ /^PING(.+)$/i) { lkRaw($fh,"PONG:$1"); lkSave(); }
         # Rizon:irc.cccp-project.net:433:*:Luka:Nickname is already in use.
         if($msg[1] =~ /^001$/) {
           # Connected. Do nickserv stuff if needed!
