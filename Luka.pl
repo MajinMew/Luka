@@ -124,22 +124,27 @@ sub lkLoad {
   if($@) { return 0; } 
   else { return 1; }
 }
+sub lkConnectTo {
+  # ID
+  my $thing = $lk{data}{networks}[$_[0]];
+  lkDebug("Connecting to ${$thing}{name}.");
+  if(${$thing}{disable}) { lkDebug("Network ${$thing}{name} is disabled. Skipping."); return 0; }
+  my $connection = new IO::Socket::INET(PeerAddr => ${$thing}{host}, PeerPort => ${$thing}{port}, Proto => 'tcp');
+  if($@) { lkDebug($@); return 0; }
+  else {
+    $lk{tmp}{connection}{fileno($connection)} = $_[0];
+    $lk{tmp}{filehandles}{fileno($connection)} = $connection;
+    lkRaw($connection,"NICK ${$thing}{nickname}","USER ${$thing}{username} * 0 :${$thing}{realname}");
+    $lk{select}->add($connection);
+    return 1;
+  }
+}
 sub lkConnect {
   # Start connecting to all enabled servers.
   if(($lk{data}{networks}) && (@{$lk{data}{networks}})) {
     my $i = 0;
     foreach(@{$lk{data}{networks}}) {
-      lkDebug("Connecting to ${$_}{name}.");
-      if(${$_}{disable}) { lkDebug("Network ${$_}{name} is disabled. Skipping."); $i++; next; }
-      my $connection = new IO::Socket::INET(PeerAddr => ${$_}{host}, PeerPort => ${$_}{port}, Proto => 'tcp');
-      if($@) { lkDebug($@); }
-      else {
-        $lk{tmp}{connection}{fileno($connection)} = $i;
-        $lk{tmp}{filehandles}{fileno($connection)} = $connection;
-        sleep 1;
-        lkRaw($connection,"USER ${$_}{username} * * :${$_}{realname}","NICK ${$_}{nickname}");
-        $lk{select}->add($connection);
-      }
+      lkConnectTo($i);
       $i++;
     }
     while(1) {
@@ -158,12 +163,15 @@ sub lkConnect {
         }
       }
       $lk{tmp}{lastTime} = $currentTime;
-      @readable = $lk{select}->can_read(2);
+      print "Checking for readable...\n";
+      @readable = $lk{select}->can_read(1);
       foreach $fh (@readable) {
         my $rawmsg = readline($fh);
         # Handle this line properly.
         if(!$rawmsg) {
-          lkDebug("Null message? Perhaps... disconnection?");
+          lkDebug("Null message. Assuming disconnection.");
+          delete $lk{tmp}{connection}{fileno($fh)};
+          delete $lk{tmp}{filehandles}{fileno($fh)};
           $lk{select}->remove($fh);
           $fh->close;
           next;
@@ -182,7 +190,7 @@ sub lkConnect {
         }
         if($ignore) { next; }
         lkDebug($lk{data}{networks}[$lk{tmp}{connection}{fileno($fh)}]{name}.':'.(join ":", @msg));
-        if($rawmsg =~ /^PING(.+)$/i) { lkRaw($fh,"PONG:$1"); lkSave(); }
+        if($rawmsg =~ /^PING(.+)$/i) { lkRaw($fh,"PONG$1"); lkSave(); }
         # Rizon:irc.cccp-project.net:433:*:Luka:Nickname is already in use.
         if($msg[1] =~ /^001$/) {
           # Connected. Do nickserv stuff if needed!

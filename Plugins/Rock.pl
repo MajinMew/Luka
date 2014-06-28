@@ -30,10 +30,12 @@ addPlug('Rock',{
           if(!(grep /$channel/, @{$lk{data}{networks}[$lk{tmp}{connection}{fileno(&{$utility{'Core_Utilities_getHandle'}}($serverName))}]{autojoin}})) {
             lkDebug("Killed $channel");
             delete $lk{data}{plugin}{'Rock'}{rocks}{$serverName}{$channel};
+            next;
           }
           elsif(!$lk{data}{plugin}{'Rock'}{rocks}{$serverName}{$channel}{name}) { 
             lkDebug("Killed $channel");
             delete $lk{data}{plugin}{'Rock'}{rocks}{$serverName}{$channel};
+            next;
           }
         }
       }
@@ -55,7 +57,7 @@ addPlug('Rock',{
         # No Rock exists, so create one.
         # number=1&gender=m&surname=&all=no&usage_eng=1&usage_jap=1
         #  &{$utility{'Caaz_Utilities_randName'}}();
-        my %rock = ('born'=>time,'survived'=>0);
+        my %rock = ('born'=>time,'survived'=>0,'protect'=>time+10);
         if(rand > .5) {
           # Male
           $rock{gender} = "male";
@@ -89,8 +91,8 @@ addPlug('Rock',{
             my $color; if($lk{data}{plugin}{'Rock'}{rocks}{$_[0]}{$_[1]}{gender} =~ /^m/i) { $color = '12'; } else { $color = '13'; }
             $_ =~ s/>>rock/\x04\cC$color$lk{data}{plugin}{'Rock'}{rocks}{$_[0]}{$_[1]}{name} the rock\x04/ig;
           }
-          elsif(/>>gender\w+/){ $_ =~ s/>>gender(\w+)/$gender{$1}/ig; }
-          elsif(/>>name/) { my $name = &{$utility{'Caaz_Utilities_randName'}}(); $_ =~ s/>>name/$name/ig; }
+          elsif(/>>gender\w+/i){ $_ =~ s/>>gender(\w+)/$gender{$1}/ig; }
+          elsif(/>>name/i) { my $name = &{$utility{'Caaz_Utilities_randName'}}(); $_ =~ s/>>name/$name/ig; }
           elsif(/>>(\w+)/) { $_ = $lk{data}{plugin}{'Rock'}{$1}[rand @{$lk{data}{plugin}{'Rock'}{$1}}]; }
         }
         my $wisdomLine = join " ", @wisdom;
@@ -115,7 +117,7 @@ addPlug('Rock',{
     },
     'topRocks' => sub {
       # Server Name, handle, Channel
-      my @keys = sort { $lk{data}{plugin}{'Rock'}{rocks}{$_[0]}{$a}{born} <=> $lk{data}{plugin}{'Rock'}{rocks}{$_[0]}{$b}{born} } keys(%{$lk{data}{plugin}{'Rock'}{rocks}{$_[0]}});
+      my @keys = sort { $lk{data}{plugin}{'Rock'}{rocks}{$_[0]}{$b}{protect} <=> $lk{data}{plugin}{'Rock'}{rocks}{$_[0]}{$a}{protect} } keys(%{$lk{data}{plugin}{'Rock'}{rocks}{$_[0]}});
       my @rocks = ();
       $i = 1;
       my $tz = DateTime::TimeZone->new( name => 'local' );
@@ -158,7 +160,11 @@ addPlug('Rock',{
         if($i >= 5) { last; }
         $i++;
       }
-      &{$utility{'Fancify_say'}}($_[1],$_[2],"There are currently >>".@keys." rocks. Here are the top 5: ".(join " ", @rocks));
+      &{$utility{'Fancify_say'}}($_[1],$_[2],">>".@keys." rocks exist. Top 5: ".(join " ", @rocks));
+    },
+    'info' => sub {
+      # Server Name, Channel,
+      my %rock = %{$lk{data}{plugin}{'Rock'}{rocks}{$_[0]}{$_[1]}};
     }
   },
   'code' => {
