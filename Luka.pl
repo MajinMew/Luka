@@ -163,7 +163,6 @@ sub lkConnect {
         }
       }
       $lk{tmp}{lastTime} = $currentTime;
-      print "Checking for readable...\n";
       @readable = $lk{select}->can_read(1);
       foreach $fh (@readable) {
         my $rawmsg = readline($fh);

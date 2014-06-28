@@ -61,15 +61,15 @@ addPlug('Rock',{
         if(rand > .5) {
           # Male
           $rock{gender} = "male";
-          $rock{name} = &{$utility{'Caaz_Utilities_randName'}}({'number'=>1,'gender'=>'m','all'=>'no','usage_eng'=>1,'usage_jap'=>1,'usage_afr'=>1});
+          $rock{name} = &{$utility{'Caaz_Utilities_randName'}}({'number'=>1,'gender'=>'m','all'=>'no','usage_eng'=>1,'usage_jap'=>1,'usage_afr'=>1,'usage_hippy'=>1});
         }
         else {
           # Female
           $rock{gender} = "female";
-          $rock{name} = &{$utility{'Caaz_Utilities_randName'}}({'number'=>1,'gender'=>'f','all'=>'no','usage_eng'=>1,'usage_jap'=>1,'usage_afr'=>1});
+          $rock{name} = &{$utility{'Caaz_Utilities_randName'}}({'number'=>1,'gender'=>'f','all'=>'no','usage_eng'=>1,'usage_jap'=>1,'usage_afr'=>1,'usage_hippy'=>1});
         }
         %{$lk{data}{plugin}{'Rock'}{rocks}{$_[0]}{$_[2]}} = %rock;
-        &{$utility{'Fancify_say'}}($_[1],$_[2],&{$utility{'Rock_getWisdom'}}($_[0],$_[2],"Congratulations, $_[2]. You've just adopted >>rock. Please take care of >>genderthird."));
+        &{$utility{'Fancify_say'}}($_[1],$_[2],&{$utility{'Rock_getWisdom'}}($_[0],$_[2],"Congratulations, >>home. You've just adopted >>rock. Please take care of >>genderthird, if you do, >>genderself'll live a long time! If you don't, people may try to kill >>genderthird!"));
         return 1;
       }
       else {
@@ -79,20 +79,21 @@ addPlug('Rock',{
     },
     'getWisdom' => sub {
       # Server Name, Channel, Text?
+      my %rock = %{$lk{data}{plugin}{'Rock'}{rocks}{$_[0]}{$_[1]}};
       my @wisdom;
       if($_[2]) { @wisdom = split /\s/, $_[2]; }
       else { @wisdom = split /\s/, $lk{data}{plugin}{'Rock'}{wisdom}[rand @{$lk{data}{plugin}{'Rock'}{wisdom}}];}
       my %gender;
-      if($lk{data}{plugin}{'Rock'}{rocks}{$_[0]}{$_[1]}{gender} =~ /^male$/i) { %gender = ('self'=>'he','selfcap'=>'He','third'=>'him','possesive'=>'his'); }
-      else { %gender = ('self'=>'she','selfcap'=>'She','possesive'=>'her','third'=>'her'); }
+      my $color;
+      if($rock{gender} =~ /^male$/i) { $color = '12'; %gender = ('self'=>'he','selfcap'=>'He','third'=>'him','possesive'=>'his'); }
+      else { $color = '13'; %gender = ('self'=>'she','selfcap'=>'She','possesive'=>'her','third'=>'her'); }
       while((join " ", @wisdom) =~ />>\w/) {
         foreach(@wisdom) {
-          if(/>>rock/i) {
-            my $color; if($lk{data}{plugin}{'Rock'}{rocks}{$_[0]}{$_[1]}{gender} =~ /^m/i) { $color = '12'; } else { $color = '13'; }
-            $_ =~ s/>>rock/\x04\cC$color$lk{data}{plugin}{'Rock'}{rocks}{$_[0]}{$_[1]}{name} the rock\x04/ig;
-          }
+          if(/>>rock/i) { $_ =~ s/>>rock/\x04\cC$color$rock{name} the rock\x04/ig; }
           elsif(/>>gender\w+/i){ $_ =~ s/>>gender(\w+)/$gender{$1}/ig; }
           elsif(/>>name/i) { my $name = &{$utility{'Caaz_Utilities_randName'}}(); $_ =~ s/>>name/$name/ig; }
+          elsif(/>>home/i){ $_ =~ s/>>home/$_[1]/ig; }
+          elsif(/>>self/i){ $_ =~ s/>>self/\x04\cC$color$rock{name}\x04/ig; }
           elsif(/>>(\w+)/) { $_ = $lk{data}{plugin}{'Rock'}{$1}[rand @{$lk{data}{plugin}{'Rock'}{$1}}]; }
         }
         my $wisdomLine = join " ", @wisdom;
@@ -120,51 +121,39 @@ addPlug('Rock',{
       my @keys = sort { $lk{data}{plugin}{'Rock'}{rocks}{$_[0]}{$b}{protect} <=> $lk{data}{plugin}{'Rock'}{rocks}{$_[0]}{$a}{protect} } keys(%{$lk{data}{plugin}{'Rock'}{rocks}{$_[0]}});
       my @rocks = ();
       $i = 1;
-      my $tz = DateTime::TimeZone->new( name => 'local' );
-      my $dt = DateTime->now();
-      foreach(@keys) {
-        my %rock = %{$lk{data}{plugin}{'Rock'}{rocks}{$_[0]}{$_}};
-        my $color; if($rock{gender} =~ /^m/i) { $color = '12'; } else { $color = '13'; }
-        
-        my $adopt = DateTime->from_epoch(epoch => $rock{born});
-        my $protect;
-        if($rock{protect}) {
-          $protect = DateTime->from_epoch(epoch => $rock{protect});
-        }
-        else { $protect = DateTime->from_epoch(epoch => time);
-        }
-        my $protectTime = $protect->subtract_datetime($dt);
-        my $duration = $dt->subtract_datetime($adopt);
-        my @dur = $duration->in_units('days','hours','minutes');
-        my @durP = $protectTime->in_units('days','hours','minutes');
-        my $durationString;
-        foreach(1,2) { $durP[$_] =~ s/-//g; while((split //, $durP[$_]) <= 1) { $durP[$_] = '0'.$durP[$_]; } }
-        $durationString .= "$dur[0] days, " if($dur[0]); foreach(1,2) { while((split //, $dur[$_]) <= 1) { $dur[$_] = '0'.$dur[$_]; } }
-        $durationString .= "$dur[1]:$dur[2]";
-        if(($rock{protect}) && ($rock{protect} > time)) {
-          $durationString .= " (\x04\cC09";
-          $durationString .= "$durP[0] days, " if($durP[0]);
-          $durationString .= "$durP[1]:$durP[2]";
-          $durationString .= "\x04)";
-        }
-        elsif(($rock{protect}) && ($rock{protect} <= time)) {
-          $durationString .= " (\x04\cC04";
-          $durationString .= "$durP[0] days, " if($durP[0]);
-          $durationString .= "$durP[1]:$durP[2]";
-          $durationString .= "\x04)";
-        }
-        else {
-          $durationString .= " (\x04\cC0400:00\x04)";
-        }
-        push(@rocks,"[>>$i:$_ \"\x04\cC$color$rock{name}\x04\" $durationString]");
-        if($i >= 5) { last; }
-        $i++;
-      }
-      &{$utility{'Fancify_say'}}($_[1],$_[2],">>".@keys." rocks exist. Top 5: ".(join " ", @rocks));
+      foreach(@keys) { push(@rocks,"$i: ".&{$utility{'Rock_info'}}($_[0],$_, 2)); if($i >= 5) { last; } $i++; }
+      &{$utility{'Fancify_say'}}($_[1],$_[2],"Top 5 Rocks: ".(join ", ", @rocks));
     },
     'info' => sub {
-      # Server Name, Channel,
+      # Server Name, Channel, returnType
+      my $handle = &{$utility{'Core_Utilities_getHandle'}}($_[0]);
       my %rock = %{$lk{data}{plugin}{'Rock'}{rocks}{$_[0]}{$_[1]}};
+      my %time = ( 'born' => DateTime->from_epoch(epoch => $rock{born}), 'protection' => DateTime->from_epoch(epoch => $rock{protect}), 'now' => DateTime->now() );
+      my %duration = ( 'lifetime' => $time{now}->subtract_datetime($time{born}), 'protection' => $time{protection}->subtract_datetime($time{now}) );
+      my %units = ( 'lifetime' => [$duration{lifetime}->in_units('days','hours','minutes','seconds')], 'protection' => [$duration{protection}->in_units('days','hours','minutes','seconds')] );
+      foreach $k ('protection','lifetime') { foreach $i (0..3) { $units{$k}[$i] =~ s/-//g; while((split //, $units{$k}[$i]) <= 1) { $units{$k}[$i] = '0'.$units{$k}[$i]; } } }
+      my %string = ();
+      foreach('lifetime','protection') {
+        $string{$_} = "$units{$_}[0] days, " if(($units{$_}[0]) && ($units{$_}[0] > 1));
+        $string{$_} = "$units{$_}[0] day, " if(($units{$_}[0]) && ($units{$_}[0] == 1));
+        $string{$_} .= "$units{$_}[1]:$units{$_}[2]";
+        $string{$_} .= ":$units{$_}[3]" if($_[2] == 1);
+      }
+      if($_[2] == 1) {
+        # Long
+        # >>rock of >>home [Lifetime: ] [Protection: ]
+        if(($rock{protect}) && ($rock{protect} > time)) { $string{protection} = "[\x04\cC09Protection: $string{protection}\x04]"; } else { $string{protection} = "[\x04\cC04Protection: 00:00:00\x04]"; }
+        $string{lifetime} = "[\x04Lifetime: $string{lifetime}\x04]";
+        foreach('protection','lifetime') { $string{$_} = &{$utility{'Fancify_main'}}($string{$_}); }
+        return &{$utility{'Rock_getWisdom'}}($_[0],$_[1],">>rock of >>home $string{lifetime} $string{protection}");
+      }
+      elsif($_[2] == 2) {
+        if(($rock{protect}) && ($rock{protect} > time)) { $string{protection} = "[\x04\cC09$string{protection}\x04]"; } else { $string{protection} = "[\x04\cC0400:00:00\x04]"; }
+        $string{lifetime} = "[\x04$string{lifetime}\x04]";
+        foreach('protection','lifetime') { $string{$_} = &{$utility{'Fancify_main'}}($string{$_}); }
+        return &{$utility{'Rock_getWisdom'}}($_[0],$_[1],"\">>self\" $string{protection}");
+      }
+      return 0;
     }
   },
   'code' => {
@@ -190,21 +179,9 @@ addPlug('Rock',{
       'cooldown' => 5,
       'code' => sub { 
         if($_[2]{where} !~ /^\#/) { &{$utility{'Fancify_say'}}($_[1]{irc},$_[2]{where},"You can't have a rock. They're channel bound!"); return 0; }
-        if(!$lk{data}{plugin}{'Rock'}{rocks}{$_[0]}{$_[2]{where}}) {
-          # No Rock exists
-          &{$utility{'Rock_adopt'}}($_[0],$_[1]{irc},$_[2]{where});
-        }
         else {
-          # A rock exists already...
-          my $tz = DateTime::TimeZone->new( name => 'local' );
-          my $dt = DateTime->now();
-          my $adopt = DateTime->from_epoch(epoch => $lk{data}{plugin}{'Rock'}{rocks}{$_[0]}{$_[2]{where}}{born});
-          my $duration = $dt->subtract_datetime($adopt);
-          my @dur = $duration->in_units('days','hours','minutes');
-          my $lifetime = &{$utility{'Fancify_main'}}(">>$dur[0] days, >>$dur[1] hours, and >>$dur[2] minutes.");
-          my $adoption = &{$utility{'Fancify_main'}}(">>".$adopt->month_name()." >>".$adopt->day().", >>".$adopt->year()." at >>".$adopt->hour_12().":>>".$adopt->minute().$adopt->am_or_pm()." GMT");
-          my $assasination = &{$utility{'Fancify_main'}}(">>$lk{data}{plugin}{'Rock'}{rocks}{$_[0]}{$_[2]{where}}{survived} attacks.");
-          &{$utility{'Fancify_say'}}($_[1]{irc},$_[2]{where},&{$utility{'Rock_getWisdom'}}($_[0],$_[2]{where},">>rock was adopted on $adoption and has been with $_[2]{where} for $lifetime >>genderselfcap has survived $assasination"));
+          if(!$lk{data}{plugin}{'Rock'}{rocks}{$_[0]}{$_[2]{where}}) { &{$utility{'Rock_adopt'}}($_[0],$_[1]{irc},$_[2]{where}); }
+          else { &{$utility{'Fancify_say'}}($_[1]{irc},$_[2]{where},&{$utility{'Rock_info'}}($_[0],$_[2]{where}, 1)); }
         }
       }
     },
@@ -241,12 +218,14 @@ addPlug('Rock',{
             &{$utility{'Fancify_say'}}($_[1]{irc},$_[2]{where},&{$utility{'Rock_getWisdom'}}($_[0],$_[2]{where},$lines[rand @lines]));
             &{$utility{'Rock_protect'}}($_[0],$_[2]{where},600);
           }
+          elsif($com =~ /^help$/i) {
+            &{$utility{'Fancify_say'}}($_[1]{irc},$_[2]{where},"What can you do with your rock? Try >>Rock >>Feed, >>Rock >>Pet, >>Rock >>Throw >>TARGET, >>Rock >>Wash, or if you're a horrible person. >>Rock >>Kill");
+          }
         }
       }
     },
-    '^Rock help$' => { 'tags' => ['innovative','game'], 'description' => "Shows rock commands.", 'cooldown' => 5, 
-    code => sub { &{$utility{'Fancify_say'}}($_[1]{irc},$_[2]{where},"What can you do with your rock? Try >>Rock >>Feed, >>Rock >>Pet, >>Rock >>Throw >>TARGET, >>Rock >>Wash, or if you're a horrible person. >>Rock >>Kill"); }},
-    '^Rock pet$' => { 'tags' => ['innovative','game'], 'description' => "Pets the local rock.", 'cooldown' => 5, },
+    '^Rock help$' => { 'tags' => ['innovative','game'], 'description' => "Shows rock commands.", 'cooldown' => 5 },
+    '^Rock pet$' => { 'tags' => ['innovative','game'], 'description' => "Pets the local rock.", 'cooldown' => 5 },
     '^Rock throw (.+)$' => { 'tags' => ['innovative','game'], 'description' => "Throws the local rock at someone or something.", 'cooldown' => 5 },
     '^Rock wash$' => { 'tags' => ['innovative','game'], 'description' => "Washes the local rock.", 'cooldown' => 5 },
     '^Rock kill$' => {
