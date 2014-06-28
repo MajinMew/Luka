@@ -160,6 +160,7 @@ addPlug("Misc_Commands", {
   'creator' => 'Caaz',
   'name' => 'Misc Commands',
   'dependencies' => ['Fancify','Caaz_Utilities'],
+  'modules' => ['Sys::Hostname'],
   'description' => "This is generally where I throw commands that aren't important/big enough to have their own plugin.",
   'help' => {
     'Commands' => "The commands list is over here https://dl.dropboxusercontent.com/u/9305622/Luka/Commands.html This page is updated whenever someone uses the ~commands command."
@@ -228,7 +229,7 @@ addPlug("Misc_Commands", {
           foreach(@lines) { if($_ =~ /\#/) {$count{comments}++;} }
           close NEW;
         }
-        &{$utility{'Fancify_say'}}($_[1]{irc},$_[2]{where},"[\x04$lk{version}\x04] (>>$lk{os}) >>$count{lines} lines, >>$count{comments} comments, >>".(keys %{$lk{plugin}})." plugins, >>".@files." files.");
+        &{$utility{'Fancify_say'}}($_[1]{irc},$_[2]{where},"[\x04$lk{version}\x04] (".hostname()." >>$lk{os}) >>$count{lines} lines, >>$count{comments} comments, >>".(keys %{$lk{plugin}})." plugins, >>".@files." files.");
       }
     }
   }
