@@ -132,6 +132,11 @@ addPlug('Rock',{
       foreach(@keys) { push(@rocks,"$i: ".&{$utility{'Rock_info'}}($_[0],$_, 2)); if($i >= 5) { last; } $i++; }
       &{$utility{'Fancify_say'}}($_[1],$_[2],"Top 5 Rocks: ".(join ", ", @rocks));
     },
+    'find' => sub {
+      # Server Name, Name
+      foreach(keys %{$lk{data}{plugin}{'Rock'}{rocks}{$_[0]}}) { if($lk{data}{plugin}{'Rock'}{rocks}{$_[0]}{$_}{name} =~ /$_[1]/i) { return $_; } }
+      return 0;
+    },
     'info' => sub {
       # Server Name, Channel, returnType
       my $handle = &{$utility{'Core_Utilities_getHandle'}}($_[0]);
@@ -191,6 +196,14 @@ addPlug('Rock',{
           if(!$lk{data}{plugin}{'Rock'}{rocks}{$_[0]}{$_[2]{where}}) { &{$utility{'Rock_adopt'}}($_[0],$_[1]{irc},$_[2]{where}); }
           else { &{$utility{'Fancify_say'}}($_[1]{irc},$_[2]{where},&{$utility{'Rock_info'}}($_[0],$_[2]{where}, 1)); }
         }
+      }
+    },
+    '^ViewRock (.+)$' => {
+      'tags' => ['innovative','game'],
+      'description' => "Adopts a pet rock. Shows rock info if there already exists a rock.",
+      'cooldown' => 5,
+      'code' => sub { 
+        &{$utility{'Fancify_say'}}($_[1]{irc},$_[2]{where},&{$utility{'Rock_info'}}($_[0],&{$utility{'Rock_find'}}($_[0],$1), 1));
       }
     },
     '^TopRocks$' => {

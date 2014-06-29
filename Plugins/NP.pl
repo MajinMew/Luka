@@ -31,6 +31,7 @@ addPlug("Foobar",{
         }
         else { $lk{tmp}{plugin}{'Foobar'}{lastNP}{$_[2]{name}} = $_[2]{info}{title}; }
       }
+      if($_[2]{info}{title} =~ /[\(\[].+?[\]\)]/) { $_[2]{info}{title} =~ s/([\(\[].+?[\]\)])/\x04$1\x04/; }
       &{$utility{'Fancify_say'}}($_[0],$_[1],"[\x04$_[2]{name}\x04] \x04$_[2]{info}{title}\x04 by \x04$_[2]{info}{artist}\x04 [\x04$_[2]{info}{album}\x04] [$bar]");
     },
     'getInfo' => sub {
@@ -68,11 +69,19 @@ addPlug("Foobar",{
     },
     'connect' => sub {
       # Input: hash!
+      if($lk{tmp}{plugin}{'Foobar'}{handles}) {
+        foreach(values %{$lk{tmp}{plugin}{'Foobar'}{handles}}) {
+          if(${$_}{host} =~ /^$_[0]{host}$/i) {
+            lkDebug("Not connecting to ${$_}{host} -- matches already connectd.");
+            return 0;
+          }
+        }
+      }
       my $connection = new IO::Socket::INET(PeerAddr => $_[0]{host}, PeerPort => $_[0]{port}, Proto => 'tcp', Timeout => 1);
       if($@) { lkDebug($@); }
       else {
         lkDebug("Connected to $_[0]{name}");
-        %{$lk{tmp}{plugin}{'Foobar'}{handles}{fileno($connection)}} = ('filehandle' => $connection, 'name' => ${$_}{name});
+        %{$lk{tmp}{plugin}{'Foobar'}{handles}{fileno($connection)}} = ('filehandle' => $connection, 'name' => ${$_}{name}, 'host' => ${$_}{host});
         $lk{tmp}{plugin}{'Foobar'}{select}->add($connection);
       }
     },
@@ -104,6 +113,7 @@ addPlug("Foobar",{
         #&{$utility{'Foobar_getInfo'}};
         $server = $_[2]{username} if(!$server);
         my $caught = 0;
+        foreach (@{$lk{data}{plugin}{'Foobar'}{servers}}) { if(${$_}{name} =~ /$server/) { &{$lk{plugin}{'Foobar'}{utilities}{connect}}($_); } }
         foreach(values %{$lk{tmp}{plugin}{'Foobar'}{handles}}) {
           lkDebug(${$_}{name});
           if(${$_}{name} =~ /^$server$/i) {
@@ -113,7 +123,9 @@ addPlug("Foobar",{
             &{$utility{'Foobar_npSay'}}($_[1]{irc},$_[2]{where},$_);
           }
         }
-        #if(!$caught) { &{$utility{'Fancify_say'}}($_[1]{irc},$_[2]{where},"$server not connected"); }
+        if(!$caught) {
+          &{$utility{'Fancify_say'}}($_[1]{irc},$_[2]{where},"$server not connected"); 
+        }
       }
     },
     '^NP auto (#.+?)( \w+)?$' => {

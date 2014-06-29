@@ -81,7 +81,7 @@ addPlug("Poll", {
           push(@{$poll{answers}}, {'text' => $_, 'votes' => 0});
         }
         push(@{$_[3]{polls}}, \%poll);
-        &{$utility{"Fancify_say"}}($_[1]{irc},$_[2]{where},"Created poll! Check the poll IDs and Option IDs with \x04~poll list\x04 and vote with \x04~vote PollID OptionID");
+        &{$utility{"Fancify_say"}}($_[1]{irc},$_[2]{where},"Created poll! Check the poll IDs with \x04~polls\x04 and vote with \x04~vote PollID Option");
       }
     },
     '^Poll close (\d+)$' => {
