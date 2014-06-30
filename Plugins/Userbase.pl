@@ -116,7 +116,16 @@ addPlug('Userbase', {
     },
   },
   'commands' => {
-    '^UB Delete$' => { 
+    '^UB Access (\d+) (\d+)$' => { 
+      'description' => "Sets access for a user",
+      'tags' => ['utility'],
+      'code' => sub {
+        my ($account,$access) = ($1,$2);
+        if((@{$lk{data}{plugin}{'Userbase'}{users}}-1) >= $account) {
+          $lk{data}{plugin}{'Userbase'}{users}[$account]{access} = $access;
+          &{$utility{'Fancify_say'}}($_[1]{irc},$_[2]{where},"Access set.");
+        }
+      }
     },
     '^Register (.+)$' => {
       'description' => "Registers a new userbase account.",
