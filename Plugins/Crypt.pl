@@ -12,7 +12,7 @@ addPlug('Digest', {
       if(!$lk{data}{plugin}{'Digest'}{salt}) { $lk{data}{plugin}{'Digest'}{salt} = ''; foreach(0..15) { $lk{data}{plugin}{'Digest'}{salt} .= chr(rand(256)); } }
       $bcrypt->cost($lk{data}{plugin}{'Digest'}{cost});
       $bcrypt->salt($lk{data}{plugin}{'Digest'}{salt});
-      $bcrypt->add($_[9]);
+      $bcrypt->add($_[0]);
       return $bcrypt->b64digest;
     },
   },

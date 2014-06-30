@@ -37,7 +37,6 @@ addPlug('Core_Command', {
             foreach $regex (keys %{$lk{plugin}{$plugin}{commands}}) {
               if($com =~ /$regex/i) {
                 my %command = %{$lk{plugin}{$plugin}{commands}{$regex}};
-                if(($command{only}) && ($command{only} !~ /$type/)) { return 0; }
                 if($command{cooldown}) {
                   if(($lk{tmp}{plugin}{'Core_Command'}{cooldown}{$parsed{username}}{$regex}) && ($lk{tmp}{plugin}{'Core_Command'}{cooldown}{$parsed{username}}{$regex} > time)) { return 1; }
                   else { $lk{tmp}{plugin}{'Core_Command'}{cooldown}{$parsed{username}}{$regex} = time + $lk{plugin}{$plugin}{commands}{$regex}{cooldown}; }

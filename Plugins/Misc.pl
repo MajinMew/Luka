@@ -2,7 +2,7 @@ addPlug("Caaz_Utilities", {
   'creator' => 'Caaz',
   'version' => '1',
   'name' => 'Misc utilities',
-  'dependencies' => ['Core_Utilities','Core_Users'],
+  'dependencies' => ['Core_Utilities'],
   'modules' => ['HTML::Entities', 'LWP::Simple'],
   'utilities' => {
     'randName' => sub {

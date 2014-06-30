@@ -7,6 +7,7 @@ addPlug('Userbase', {
   'utilities' => {
     'new' => sub {
       # Server, Nickname, Password
+      lkDebug("New with $_[2]");
       if(&{$utility{'Userbase_isLoggedIn'}}($_[0],$_[1],2)) { return 0; }
       my $handle = &{$utility{'Core_Utilities_getHandle'}}($_[0]);
       my %user = (
@@ -24,14 +25,15 @@ addPlug('Userbase', {
     },
     'login' => sub {
       # Server, Nickname, Password
+      lkDebug("Logging in with $_[2]");
       if(&{$utility{'Userbase_isLoggedIn'}}($_[0],$_[1],2)) { return 0; }
       my $match = 0;
       my $handle = &{$utility{'Core_Utilities_getHandle'}}($_[0]);
       foreach(@{$lk{data}{plugin}{'Userbase'}{users}{$_[0]}}) {
         if(grep /^$_[1]$/i, @{${$_}{nicknames}}) {
-          my $match++;
+          $match++;
           if(&{$utility{'Userbase_password'}}($_[2]) =~ /^${$_}{password}$/i) {
-            ${$_}{currently} = $nickname;
+            ${$_}{currently} = $_[1];
             &{$utility{'Fancify_say'}}($handle,$_[1],"You're now logged in as \x04${$_}{name}\x04."); 
             return 1; 
           }
@@ -70,13 +72,13 @@ addPlug('Userbase', {
     },
     'info' => sub {
       # Server, Nicknamec
-      if(!&{$utility{'Userbase_isLoggedIn'}}($_[0],$_[1])) { return 0; }
+      if(!&{$utility{'Userbase_isLoggedIn'}}($_[0],$_[1])) { return {0=>0}; }
       foreach(@{$lk{data}{plugin}{'Userbase'}{users}{$_[0]}}) {
         if(grep /^$_[1]$/i, @{${$_}{nicknames}}) {
           return $_;
         }
       }
-      return 0;
+      return {0=>0};
     }
   },
   'code' => {
@@ -87,7 +89,10 @@ addPlug('Userbase', {
       if($irc{msg}[1] =~ /^NICK$/i) {
         my $nickname = split /\!|\@/, $irc{msg}[0];
         foreach(@{$lk{data}{plugin}{'Userbase'}{users}{$irc{name}}}) {
-          if(${$_}{currently} =~ /^$nickname$/i) { ${$_}{currently} = $nickname; }
+          if(${$_}{currently} =~ /^$nickname$/i) { 
+            push(@{${$_}{nicknames}}, $nickname);
+            ${$_}{currently} = $nickname; 
+          }
         }
       }
     },
@@ -96,25 +101,32 @@ addPlug('Userbase', {
     '^Register (.+)$' => {
       'description' => "Registers a new userbase account.",
       'tags' => ['wip'],
-      'only' => 'private',
       'code' => sub {
-        &{$utility{'Userbase_new'}}($_[0],$_[2]{nickname},$1);
+        my $password = $1;
+        &{$utility{'Userbase_new'}}($_[0],$_[2]{nickname},$password);
       }
     },
     '^login (.+)$' => {
       'description' => "Logs into your userbase account",
       'tags' => ['wip'],
-      'only' => 'private',
       'code' => sub {
-        &{$utility{'Userbase_login'}}($_[0],$_[2]{nickname},$1);
+        my $password = $1;
+        lkDebug("Got $password");
+        &{$utility{'Userbase_login'}}($_[0],$_[2]{nickname},$password);
       }
     },
     '^Logout$' => {
       'description' => "Logs out of your userbase account.",
       'tags' => ['wip'],
-      'only' => 'private',
       'code' => sub {
         &{$utility{'Userbase_logout'}}($_[0],$_[2]{nickname});
+      }
+    },
+    '^Self$' => {
+      'description' => "Views information on your userbase account.",
+      'tags' => ['wip'],
+      'code' => sub {
+        &{$utility{'Userbase_view'}}($_[0],$_[2]{nickname});
       }
     },
   },
