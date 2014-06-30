@@ -93,7 +93,7 @@ addPlug('Userbase', {
     },
   },
   'commands' => {
-    '^ubregister (.+)$' => {
+    '^Register (.+)$' => {
       'description' => "Registers a new userbase account.",
       'tags' => ['wip'],
       'only' => 'private',
@@ -101,7 +101,7 @@ addPlug('Userbase', {
         &{$utility{'Userbase_new'}}($_[0],$_[2]{nickname},$1);
       }
     },
-    '^ublogin (.+)$' => {
+    '^login (.+)$' => {
       'description' => "Logs into your userbase account",
       'tags' => ['wip'],
       'only' => 'private',
@@ -109,7 +109,7 @@ addPlug('Userbase', {
         &{$utility{'Userbase_login'}}($_[0],$_[2]{nickname},$1);
       }
     },
-    '^ublogout$' => {
+    '^Logout$' => {
       'description' => "Logs out of your userbase account.",
       'tags' => ['wip'],
       'only' => 'private',

@@ -96,7 +96,7 @@ addPlug('Core_Owner',{
     '^Reload$' => {
       'tags' => ['utility'],
       'description' => "Loads any new plugins, and overwrites any updated ones.",
-      #'access' => 3,
+      'access' => 3,
       'code' => sub {
         my $startTime = time;
         foreach(keys %{$lk{plugin}}) {
@@ -146,7 +146,7 @@ addPlug('Core_Owner',{
     '^\!(.+)$' => {
       'tags' => ['utility'],
       'description' => "Executes perl code.",
-      #'access' => 3,
+      'access' => 3,
       'code' => sub {
         my $code = $1;
         my @result = split /\n|\r/, eval $code;
