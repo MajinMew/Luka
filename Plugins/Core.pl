@@ -43,7 +43,6 @@ addPlug('Core_Command', {
                 }
                 if($command{access}) {
                   my %account = %{$utility{'Userbase_info'}($network,$parsed{nickname})};
-                  &{$utility{'Core_Utilities_debugHash'}}(\%account);
                   if(($account{access}) && ($account{access} >= $command{access})) {
                     &{$command{code}}($network,\%irc,\%parsed,$lk{data}{plugin}{$plugin},$lk{tmp}{plugin}{$plugin}) if($command{code});
                   }
