@@ -81,6 +81,22 @@ addPlug('Userbase', {
         }
       }
       return {0=>0};
+    },
+    'view' => sub {
+      #Input: Server, Where, Nickname.
+      my $handle = &{$utility{'Core_Utilities_getHandle'}}($_[0]);
+      my $match = 0;
+      my $i=0;
+      foreach(@{$lk{data}{plugin}{'Userbase'}{users}{$_[0]}}) {
+        if(grep /^$_[2]$/i, @{${$_}{nicknames}}) {
+          $match++;
+          &{$utility{'Fancify_say'}}($handle,$_[1],">>$i: [\x04${$_}{name}\x04] [Access: >>${$_}{access}]");
+        }
+        $i++;
+      }
+      if(!$match) {
+        &{$utility{'Fancify_say'}}($handle,$_[1],"No userbase accounts tied to that nickname.");
+      }
     }
   },
   'code' => {
@@ -100,6 +116,8 @@ addPlug('Userbase', {
     },
   },
   'commands' => {
+    '^UB Delete$' => { 
+    },
     '^Register (.+)$' => {
       'description' => "Registers a new userbase account.",
       'tags' => ['utility'],
@@ -108,7 +126,7 @@ addPlug('Userbase', {
         &{$utility{'Userbase_new'}}($_[0],$_[2]{nickname},$password);
       }
     },
-    '^login (.+)$' => {
+    '^Login (.+)$' => {
       'description' => "Logs into your userbase account",
       'tags' => ['utility'],
       'code' => sub {
@@ -127,7 +145,7 @@ addPlug('Userbase', {
       'description' => "Views information on your userbase account.",
       'tags' => ['utility'],
       'code' => sub {
-        &{$utility{'Userbase_view'}}($_[0],$_[2]{nickname});
+        &{$utility{'Userbase_view'}}($_[0],$_[2]{where},$_[2]{nickname});
       }
     },
   },
