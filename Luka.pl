@@ -188,7 +188,7 @@ sub lkConnect {
           } 
         }
         if($ignore) { next; }
-        lkDebug($lk{data}{networks}[$lk{tmp}{connection}{fileno($fh)}]{name}.':'.(join ":", @msg));
+        #lkDebug($lk{data}{networks}[$lk{tmp}{connection}{fileno($fh)}]{name}.':'.(join ":", @msg));
         if($rawmsg =~ /^PING(.+)$/i) { lkRaw($fh,"PONG$1"); lkSave(); }
         # Rizon:irc.cccp-project.net:433:*:Luka:Nickname is already in use.
         if($msg[1] =~ /^001$/) {
@@ -199,7 +199,7 @@ sub lkConnect {
         }
         # Pass things to plugins!
         foreach(keys %{$lk{plugin}}) {
-          eval { &{$lk{plugin}{$_}{code}{irc}}({'irc' => $fh, 'raw' => $rawmsg, 'msg', => \@msg, 'data' => $lk{data}{plugin}{$_}, 'tmp' => $lk{tmp}{plugin}{$_}}) if($lk{plugin}{$_}{code}{irc}); };
+          eval { &{$lk{plugin}{$_}{code}{irc}}({'irc' => $fh, 'name'=>$lk{data}{networks}[$lk{tmp}{connection}{fileno($fh)}]{name}, 'raw' => $rawmsg, 'msg', => \@msg, 'data' => $lk{data}{plugin}{$_}, 'tmp' => $lk{tmp}{plugin}{$_}}) if($lk{plugin}{$_}{code}{irc}); };
           print $@ if $@;
         }
       }

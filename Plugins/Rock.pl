@@ -10,7 +10,6 @@ addPlug('Rock',{
       foreach $serverName (keys %{$lk{data}{plugin}{'Rock'}{rocks}}) {
         foreach $channel (keys %{$lk{data}{plugin}{'Rock'}{rocks}{$serverName}}) {
           my $handle = &{$utility{'Core_Utilities_getHandle'}}($serverName);
-          lkDebug("Setting a wisdom.");
           addTimer(time+(int(rand(300))),{'name' => 'wisdom', 'code' => sub {
             my @a = @{$_[1]}; 
             if($lk{data}{plugin}{'Rock'}{rocks}{$a[0]}{$a[1]}) {
@@ -143,14 +142,19 @@ addPlug('Rock',{
       my %rock = %{$lk{data}{plugin}{'Rock'}{rocks}{$_[0]}{$_[1]}};
       my %time = ( 'born' => DateTime->from_epoch(epoch => $rock{born}), 'protection' => DateTime->from_epoch(epoch => $rock{protect}), 'now' => DateTime->now() );
       my %duration = ( 'lifetime' => $time{now}->subtract_datetime($time{born}), 'protection' => $time{protection}->subtract_datetime($time{now}) );
-      my %units = ( 'lifetime' => [$duration{lifetime}->in_units('days','hours','minutes','seconds')], 'protection' => [$duration{protection}->in_units('days','hours','minutes','seconds')] );
-      foreach $k ('protection','lifetime') { foreach $i (1..3) { $units{$k}[$i] =~ s/-//g; while((split //, $units{$k}[$i]) <= 1) { $units{$k}[$i] = '0'.$units{$k}[$i]; } } }
+      my %units = ( 
+        'lifetime' => [$duration{lifetime}->in_units('weeks','days','hours','minutes','seconds')], 
+        'protection' => [$duration{protection}->in_units('weeks','days','hours','minutes','seconds')] 
+      );
+      foreach $k ('protection','lifetime') { foreach $i (2..4) { $units{$k}[$i] =~ s/-//g; while((split //, $units{$k}[$i]) <= 1) { $units{$k}[$i] = '0'.$units{$k}[$i]; } } }
       my %string = ();
       foreach('lifetime','protection') {
-        $string{$_} = "$units{$_}[0] days, " if(($units{$_}[0]) && ($units{$_}[0] > 1));
-        $string{$_} = "$units{$_}[0] day, " if(($units{$_}[0]) && ($units{$_}[0] == 1));
-        $string{$_} .= "$units{$_}[1]:$units{$_}[2]";
-        $string{$_} .= ":$units{$_}[3]" if($_[2] == 1);
+        $string{$_} .= "$units{$_}[0] weeks, " if(($units{$_}[0]) && ($units{$_}[0] > 1));
+        $string{$_} .= "$units{$_}[0] week, " if(($units{$_}[0]) && ($units{$_}[0] == 1));
+        $string{$_} .= "$units{$_}[1] days, " if(($units{$_}[1]) && ($units{$_}[1] > 1));
+        $string{$_} .= "$units{$_}[1] day, " if(($units{$_}[1]) && ($units{$_}[1] == 1));
+        $string{$_} .= "$units{$_}[2]:$units{$_}[3]";
+        $string{$_} .= ":$units{$_}[4]" if($_[3] == 1);
       }
       if($_[2] == 1) {
         # Long

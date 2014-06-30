@@ -10,18 +10,10 @@ addPlug('Core_Ignore', {
       if($irc{msg}[1] =~ /^PRIVMSG|NOTICE$/i) {
         my %parsed = %{&{$lk{plugin}{'Core_Utilities'}{utilities}{parse}}(@{$irc{msg}})};
         my $network = $lk{data}{networks}[$lk{tmp}{connection}{fileno($irc{irc})}]{name};
-        foreach $regex (@{$irc{data}{ignore}}){
-          #&{$lk{plugin}{'Core_Utilities'}{utilities}{debugHash}}(\%parsed);
-          if($irc{msg}[0] =~ /$regex/i) {
-            #lkDebug("Ignoring user.");
-            return 0;
-          }
-        }
+        foreach $regex (@{$irc{data}{ignore}}){ if($irc{msg}[0] =~ /$regex/i) { return 0; } }
         return 1;
       }
-      else {
-        return 1;
-      }
+      else { return 1; }
     }
   }
 });
@@ -29,7 +21,7 @@ addPlug('Core_Command', {
   'creator' => 'Caaz',
   'version' => '1.1',
   'name' => 'Core Command',
-  'dependencies' => ['Core_Utilities','Core_Users'],
+  'dependencies' => ['Core_Utilities','Userbase','Fancify'],
   'code' => {
     'irc' => sub {
       my %irc = %{$_[0]};
@@ -37,28 +29,28 @@ addPlug('Core_Command', {
         my %parsed = %{&{$lk{plugin}{'Core_Utilities'}{utilities}{parse}}(@{$irc{msg}})};
         my $network = $lk{data}{networks}[$lk{tmp}{connection}{fileno($irc{irc})}]{name};
         my $prefix = $lk{data}{prefix};
-        if($parsed{nickname} =~ /^$parsed{where}$/) { $prefix = $lk{data}{prefix}.'?'; }
+        my $type = 'public';
+        if($parsed{nickname} =~ /^$parsed{where}$/) { $type = 'private'; $prefix = $lk{data}{prefix}.'?'; }
         if($parsed{msg} =~ /^$prefix(.+)$/i) {
           my $com = $1;
           foreach $plugin (keys %{$lk{plugin}}) {
             foreach $regex (keys %{$lk{plugin}{$plugin}{commands}}) {
               if($com =~ /$regex/i) {
-                if($lk{plugin}{$plugin}{commands}{$regex}{cooldown}) {
+                my %command = %{$lk{plugin}{$plugin}{commands}{$regex}};
+                if(($command{only}) && ($command{only} !~ /$type/)) { return 0; }
+                if($command{cooldown}) {
                   if(($lk{tmp}{plugin}{'Core_Command'}{cooldown}{$parsed{username}}{$regex}) && ($lk{tmp}{plugin}{'Core_Command'}{cooldown}{$parsed{username}}{$regex} > time)) { return 1; }
                   else { $lk{tmp}{plugin}{'Core_Command'}{cooldown}{$parsed{username}}{$regex} = time + $lk{plugin}{$plugin}{commands}{$regex}{cooldown}; }
                 }
-                if($lk{plugin}{$plugin}{commands}{$regex}{access}) {
-                  my $acc = &{$lk{plugin}{'Core_Users'}{utilities}{'isLoggedIn'}}($network,$parsed{nickname});
-                  if(($lk{data}{plugin}{'Core_Users'}{$network}{users}{$acc}) &&  ($lk{data}{plugin}{'Core_Users'}{$network}{users}{$acc}{access} >= $lk{plugin}{$plugin}{commands}{$regex}{access})) {
-                    &{$lk{plugin}{$plugin}{commands}{$regex}{code}}($network,\%irc,\%parsed,$lk{data}{plugin}{$plugin},$lk{tmp}{plugin}{$plugin}) if($lk{plugin}{$plugin}{commands}{$regex}{code});
+                if($command{access}) {
+                  my %account = %{$utility{'Userbase_info'}($network,$parsed{nickname})};
+                  &{$utility{'Core_Utilities_debugHash'}}(\%account);
+                  if(($account{access}) && ($account{access} >= $command{access})) {
+                    &{$command{code}}($network,\%irc,\%parsed,$lk{data}{plugin}{$plugin},$lk{tmp}{plugin}{$plugin}) if($command{code});
                   }
-                  else {
-                    lkRaw($irc{irc},"PRIVMSG $parsed{where} :You don't have access to this command");
-                  }
+                  else { &{$utility{'Fancify_say'}}($irc{irc},$parsed{where},"You don't have enough >>access for this command."); }
                 }
-                else {
-                  &{$lk{plugin}{$plugin}{commands}{$regex}{code}}($network,\%irc,\%parsed,$lk{data}{plugin}{$plugin},$lk{tmp}{plugin}{$plugin}) if($lk{plugin}{$plugin}{commands}{$regex}{code});
-                }
+                else { &{$command{code}}($network,\%irc,\%parsed,$lk{data}{plugin}{$plugin},$lk{tmp}{plugin}{$plugin}) if($command{code}); }
               }
             }
           }
@@ -104,7 +96,7 @@ addPlug('Core_Owner',{
     '^Reload$' => {
       'tags' => ['utility'],
       'description' => "Loads any new plugins, and overwrites any updated ones.",
-      'access' => 3,
+      #'access' => 3,
       'code' => sub {
         my $startTime = time;
         foreach(keys %{$lk{plugin}}) {
@@ -154,7 +146,7 @@ addPlug('Core_Owner',{
     '^\!(.+)$' => {
       'tags' => ['utility'],
       'description' => "Executes perl code.",
-      'access' => 3,
+      #'access' => 3,
       'code' => sub {
         my $code = $1;
         my @result = split /\n|\r/, eval $code;
@@ -239,101 +231,5 @@ addPlug('Core_Utilities',{
       }
     },
     'shuffle' => sub { my $deck = shift; return unless @$deck; my $i = @$deck; while (--$i) { my $j = int rand ($i+1); @$deck[$i,$j] = @$deck[$j,$i]; } }
-  }
-});
-addPlug('Core_Users',{
-  # Userbase.
-  'creator' => 'Caaz',
-  'version' => '1.1',
-  'description' => 'This plugin was created to handle access related things. It\'s no where near as great as it should be right now.', 
-  'name' => 'Core Users',
-  'dependencies' => ['Core_Utilities'],
-  'code' => {
-    'irc' => sub {
-      my %irc = %{$_[0]};
-      if($irc{msg}[1] =~ /^PRIVMSG$/i) {
-        my %parsed = %{&{$lk{plugin}{'Core_Utilities'}{utilities}{parse}}(@{$irc{msg}})};
-        my $network = $lk{data}{networks}[$lk{tmp}{connection}{fileno($irc{irc})}]{name};
-        #foreach(keys %parsed) { print "$_ => '$parsed{$_}'\n"; }
-        if($parsed{msg} =~ /^$lk{data}{prefix}(.+)$/i) {
-          my $com = $1;
-          if($com =~ /^Register (.+?) (.+)/i) {
-            my ($account,$password) = ($1,$2);
-            if(&{$lk{plugin}{'Core_Users'}{utilities}{'isLoggedIn'}}($network,$parsed{nickname})){
-              lkRaw($irc{irc},"PRIVMSG $parsed{where} :You're already logged in.");
-            }
-            else {
-              if($irc{data}{$network}{users}{$account}) {
-                # Account exists
-                lkRaw($irc{irc},"PRIVMSG $parsed{where} :Account already exists.");
-              }
-              else {
-                %{$irc{data}{$network}{users}{$account}} = (
-                  'name' => $parsed{nickname},
-                  'password' => md5_hex(md5_hex($network.$password))
-                );
-                if(keys %{$irc{data}{$network}{users}} == 1) {
-                  $irc{data}{$network}{users}{$account}{access} = 3;
-                  lkDebug('First user created. Making owner.');
-                }
-                lkSave();
-                $irc{tmp}{$network}{$account}{'nickname'} = $parsed{nickname};
-                lkRaw($irc{irc},"PRIVMSG $parsed{where} :Successfully created user account.");
-              }
-            }
-          }
-          elsif($com =~ /^logout$/) {
-            if(my $account = &{$lk{plugin}{'Core_Users'}{utilities}{'isLoggedIn'}}($network,$parsed{nickname})){
-              delete $irc{tmp}{$network}{$account}{'nickname'};
-              lkRaw($irc{irc},"PRIVMSG $parsed{where} :Logged out.");
-            }
-            else {
-              lkRaw($irc{irc},"PRIVMSG $parsed{where} :You're not logged in.");
-            }
-          }
-          elsif($com =~ /^Login (.+?) (.+)$/i) {
-            my ($account,$password) = ($1,$2);
-            if(&{$lk{plugin}{'Core_Users'}{utilities}{'isLoggedIn'}}($network,$parsed{nickname})){
-              lkRaw($irc{irc},"PRIVMSG $parsed{where} :You're already logged in.");
-            }
-            else {
-              if($irc{data}{$network}{users}{$account}) {
-                # User account exists.
-                $password = md5_hex(md5_hex($network.$password));
-                #print "$irc{data}{$network}{users}{$account} =~ $password";
-                if($irc{data}{$network}{users}{$account}{password} =~ /^$password$/) {
-                  # Passwords match.
-                  $irc{tmp}{$network}{$account}{'nickname'} = $parsed{nickname};
-                  lkRaw($irc{irc},"PRIVMSG $parsed{where} :Logged in successfully.");
-                }
-                else {
-                  lkRaw($irc{irc},"PRIVMSG $parsed{where} :Password incorrect.");
-                }
-              }
-              else {
-                lkRaw($irc{irc},"PRIVMSG $parsed{where} :No account by that name.");
-              }
-            }
-          }
-        }
-      }
-      #else { lkDebug($irc{msg}[1]); }
-    }
-  },
-  'utilities' => {
-    'isLoggedIn' => sub {
-      # Network Name, Nickname
-      foreach(keys %{$lk{tmp}{plugin}{'Core_Users'}{$_[0]}}) {
-        # The keys in this should be of user account names.
-        # So for everyone logged in...
-        # lkDebug("Checking if $_[1] is logged into $_");
-        if($lk{tmp}{plugin}{'Core_Users'}{$_[0]}{$_}{'nickname'} =~ /^$_[1]$/){
-          # If their nickname is the param... Return the username!
-          return $_;
-        }
-      }
-      # If that never returns anything, return 0.
-      return 0;
-    }
   }
 });
