@@ -7,7 +7,6 @@ addPlug('Userbase', {
   'utilities' => {
     'new' => sub {
       # Server, Nickname, Password
-      lkDebug("New with $_[2]");
       if(&{$utility{'Userbase_isLoggedIn'}}($_[0],$_[1],2)) { return 0; }
       my $handle = &{$utility{'Core_Utilities_getHandle'}}($_[0]);
       my %user = (
@@ -25,7 +24,6 @@ addPlug('Userbase', {
     },
     'login' => sub {
       # Server, Nickname, Password
-      lkDebug("Logging in with $_[2]");
       if(&{$utility{'Userbase_isLoggedIn'}}($_[0],$_[1],2)) { return 0; }
       my $match = 0;
       my $handle = &{$utility{'Core_Utilities_getHandle'}}($_[0]);
@@ -111,7 +109,6 @@ addPlug('Userbase', {
       'tags' => ['wip'],
       'code' => sub {
         my $password = $1;
-        lkDebug("Got $password");
         &{$utility{'Userbase_login'}}($_[0],$_[2]{nickname},$password);
       }
     },

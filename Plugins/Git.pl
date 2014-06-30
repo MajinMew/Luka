@@ -52,7 +52,7 @@ addPlug('Git', {
         my $changes = 0;
         foreach(@output) {
           chomp($_);
-          lkDebug($_);
+          lkDebug("Got: ". $_);
           if(/(\d) files? changed/i) {
             my $changes = $1;
           }
