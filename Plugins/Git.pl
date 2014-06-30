@@ -49,15 +49,15 @@ addPlug('Git', {
       'tags' => ['utility'],
       'code' => sub {
         my @output = split /\n|\r/, `git pull`;
-        my $changes = 0;
+        my $changes = 'No changes made';
         foreach(@output) {
           chomp($_);
-          lkDebug("Got: ". $_);
-          if(/(\d) files? changed/i) {
-            my $changes = $1;
+          #  2 files changed, 4 insertions(+), 8 deletions(-)
+          if($_ =~ /(\d+) files? changed/i) {
+            ($changes = $_) =~ s/^\s|\s$//g;
           }
         }
-        &{$utility{'Fancify_say'}}($_[1]{irc},$_[2]{where},"Pulled latest updates from >>Github. $changes changes made.");
+        &{$utility{'Fancify_say'}}($_[1]{irc},$_[2]{where},"Pulled latest updates from >>Github. $changes");
       }
     },
     '^Git status$' => {
