@@ -8,6 +8,11 @@ It features a modular "plugins" system allowing for infinite yet diverse functio
 ##Getting Started
 Luka is programmed on and with [DWIM Perl](http://dwimperl.com/) in mind. Mileage may vary out-of-the-box with other flavors.
 
+Luka uses a set of modules for her core functions, those being *Cwd*, *IO::Select*, *IO::Socket*, *utf-8* and *JSON*. If you don't have those installed already, you're going to need to in order to get the bot running. Depending on your perl setup, installation varies but it's likely you're able to use cpan to get these so check that out.
+Some plugins require modules of their own, however when those dependencies aren't resolved, the plugins won't be loaded and you'll be informed in Luka's output. Most plugins are designed to be optional, so it's likely you can ignore those, unless you plan on using those plugins somehow.
+
+It's best that you have git commands installed, and have it properly configured, because there is a git plugin on luka which allows you to check for updates, pull those udates, or even push your own code right from IRC. 
+
 If perl is your path run the appropriate run-*.* file based on your operating system.
 If perl is not in your path run **Luka.pl** manually however you can.
 
@@ -49,8 +54,12 @@ The reason for requiring *Core\_Commands* is that it allows the use of the comma
 
 The keys in the command hash are regex, which is what Core\_Commands looks at and if they match, it'll execute the code in the hash of your regex...
 * access
-  * This key uses the Core\_Users plugin, and checks if the user has an access value equal to or above this value before continuing. If the user doesn't match, then an error message is displayed instead.
+  * This key uses the Userbase plugin, and checks if the user has an access value equal to or above this value before continuing. If the user doesn't match, then an error message is displayed instead.
 * cooldown
   * This key specifies that the command can't be used for x amount of seconds before it's used again.
 * code
   * This is the code that's activated when the regex is matched, if it exists at least. 
+* tags
+  * This array is used for tags on the commands listing page, if you're using it.
+* description
+  * This string is used for descriptions in the command listing page, and hopefully a help command in the future.
