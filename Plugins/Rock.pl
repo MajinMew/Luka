@@ -116,6 +116,7 @@ addPlug('Rock',{
       }
     },
     'topRocks' => sub {
+      &{$utility{'Rock_clearIssues'}}();
       # Server Name, handle, Channel, type
       my @keys = ();
       if($_[3] == 1) {

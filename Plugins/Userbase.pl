@@ -98,9 +98,15 @@ addPlug('Userbase', {
     },
   },
   'commands' => {
+    '^clearuserbase$' => {
+      'code' => sub {
+        delete $lk{data}{plugin}{'Userbase'}{users}{$_[0]};
+        lkDebug("done");
+      }
+    },
     '^Register (.+)$' => {
       'description' => "Registers a new userbase account.",
-      'tags' => ['wip'],
+      'tags' => ['utility'],
       'code' => sub {
         my $password = $1;
         &{$utility{'Userbase_new'}}($_[0],$_[2]{nickname},$password);
@@ -108,7 +114,7 @@ addPlug('Userbase', {
     },
     '^login (.+)$' => {
       'description' => "Logs into your userbase account",
-      'tags' => ['wip'],
+      'tags' => ['utility'],
       'code' => sub {
         my $password = $1;
         &{$utility{'Userbase_login'}}($_[0],$_[2]{nickname},$password);
@@ -116,14 +122,14 @@ addPlug('Userbase', {
     },
     '^Logout$' => {
       'description' => "Logs out of your userbase account.",
-      'tags' => ['wip'],
+      'tags' => ['utility'],
       'code' => sub {
         &{$utility{'Userbase_logout'}}($_[0],$_[2]{nickname});
       }
     },
     '^Self$' => {
       'description' => "Views information on your userbase account.",
-      'tags' => ['wip'],
+      'tags' => ['utility'],
       'code' => sub {
         &{$utility{'Userbase_view'}}($_[0],$_[2]{nickname});
       }
