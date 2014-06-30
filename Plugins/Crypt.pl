@@ -3,7 +3,7 @@ addPlug('Digest', {
   'version' => '1',
   'description' => "Allows quick and easy encryption with different salts generated and saved to plugin stuff. This allows for different encryptions per bot.",
   'name' => 'Digest',
-  'modules' => ['Digest'],
+  'modules' => ['Digest::Bcrypt','Digest'],
   'utilities' => {
     'bcrypt' => sub {
       # Data

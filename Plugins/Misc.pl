@@ -230,6 +230,9 @@ addPlug("Misc_Commands", {
           close NEW;
         }
         &{$utility{'Fancify_say'}}($_[1]{irc},$_[2]{where},"[\x04$lk{version}\x04] (".hostname()." >>$lk{os}) >>$count{lines} lines, >>$count{comments} comments, >>".(keys %{$lk{plugin}})." plugins, >>".@files." files.");
+        
+        if($lk{os} =~ /linux/i) {
+        }
       }
     }
   }
