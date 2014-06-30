@@ -66,7 +66,7 @@ addPlug('Git', {
       'tags' => ['utility'],
       'code' => sub {
         system('git add *.pl'); system('git add *.bat');
-        my @output = split /\n|\r/, `git status`;
+        my @output = split /\n|\r/, `git status -uno`;
         my @files = ();
         foreach(@output) {
           chomp($_);
