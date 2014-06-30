@@ -121,8 +121,8 @@ addPlug('Userbase', {
       'tags' => ['utility'],
       'code' => sub {
         my ($account,$access) = ($1,$2);
-        if((@{$lk{data}{plugin}{'Userbase'}{users}}) >= $account) {
-          $lk{data}{plugin}{'Userbase'}{users}[$account]{access} = $access;
+        if((@{$lk{data}{plugin}{'Userbase'}{users}{$_[0]}}) >= $account) {
+          $lk{data}{plugin}{'Userbase'}{users}{$_[0]}[$account]{access} = $access;
           &{$utility{'Fancify_say'}}($_[1]{irc},$_[2]{where},"Access set.");
         }
       }
