@@ -11,7 +11,12 @@ addPlug('Digest', {
       if(!$lk{data}{plugin}{'Digest'}{cost}) { $lk{data}{plugin}{'Digest'}{cost} = int(rand(31))+1; }
       if(!$lk{data}{plugin}{'Digest'}{salt}) { $lk{data}{plugin}{'Digest'}{salt} = ''; foreach(0..15) { $lk{data}{plugin}{'Digest'}{salt} .= chr(rand(256)); } }
       $bcrypt->cost($lk{data}{plugin}{'Digest'}{cost});
-      $bcrypt->salt($lk{data}{plugin}{'Digest'}{salt});
+      my $problem = 1;
+      while($problem) {
+        $problem = 0;
+        eval { $bcrypt->salt($lk{data}{plugin}{'Digest'}{salt}); };
+        if($@) { $problem = 1; $lk{data}{plugin}{'Digest'}{salt} = ''; foreach(0..15) { $lk{data}{plugin}{'Digest'}{salt} .= chr(rand(256)); } }
+      }
       $bcrypt->add($_[0]);
       return $bcrypt->b64digest;
     },
