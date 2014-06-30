@@ -80,6 +80,8 @@ addPlug('Git', {
           }
           elsif(/behind (\'.+?\') by (\d+)/) {
             $behind = $2;
+            if($behind > 1) { $behind .= " commits"; }
+            else { $behind .= " commit"; }
           }
         }
         if($behind) {
