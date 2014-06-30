@@ -18,10 +18,10 @@ addPlug('System', {
         push(@return,"[Uptime: \x04$up\x04]","[Users: \x04$usr\x04]","[Load: \x04$avg\x04]");
       }
       # Free space
-      if (`free` =~ /Mem:\s*(\d*)\s*\d*\s*(\d*)/) { push(@return,"[Memory: \x04". int(.5 + $2/2**10) ."\x04/\x04". int(.5 + $1/2**10) ."\x04MiB]"); }
-      if (`free` =~ /Swap:\s*(\d*)\s*\d*\s*(\d*)/) { push(@return,"[Swap: \x04". int(.5 + $2/2**10) ."\x04/\x04". int(.5 + $1/2**10) ."\x04MiB]"); }
+      if (`free` =~ /Mem:\s*(\d*)\s*\d*\s*(\d*)/) { push(@return,"[Memory: \x04". int(.5 + $2/2**10) ."\x04/\x04". int(.5 + $1/2**10) ."\x04 MiB]"); }
+      if (`free` =~ /Swap:\s*(\d*)\s*\d*\s*(\d*)/) { push(@return,"[Swap: \x04". int(.5 + $2/2**10) ."\x04/\x04". int(.5 + $1/2**10) ."\x04 MiB]"); }
 
-      for (`df -m -x nfs -x smbfs -x none`) { /^\/\S*\s*(\S*)\s*\S*\s*(\S*)\s*\S*\s*(\S*)/ and push(@return,"[$3: \x04$2\x04/\x04$1\x04MiB]"); }
+      for (`df -m -x nfs -x smbfs -x none`) { /^\/\S*\s*(\S*)\s*\S*\s*(\S*)\s*\S*\s*(\S*)/ and push(@return,"[$3: \x04$2\x04/\x04$1\x04 MiB]"); }
       &{$utility{'Fancify_say'}}($_[0],$_[1],join " ", @return);
       return 1;
     },
