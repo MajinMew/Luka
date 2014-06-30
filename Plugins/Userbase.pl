@@ -19,7 +19,7 @@ addPlug('Userbase', {
       );
       if(!@{$lk{data}{plugin}{'Userbase'}{users}{$_[0]}}) { $user{access} = 3; }
       push(@{$lk{data}{plugin}{'Userbase'}{users}{$_[0]}},\%user);
-      &{$utility{'Fancify_say'}}($handle,$_[1],"You've made a new account with the name \x04$user{name}\x04."); 
+      &{$utility{'Fancify_say'}}($handle,$_[1],"You've made a new account with the name \x04$user{name}\x04 You are user >>".@{$lk{data}{plugin}{'Userbase'}{users}{$_[0]}}.". You have >>$user{access} access."); 
       return 1;
     },
     'login' => sub {
@@ -32,7 +32,7 @@ addPlug('Userbase', {
           $match++;
           if(&{$utility{'Userbase_password'}}($_[2]) =~ /^${$_}{password}$/i) {
             ${$_}{currently} = $_[1];
-            &{$utility{'Fancify_say'}}($handle,$_[1],"You're now logged in as \x04${$_}{name}\x04."); 
+            &{$utility{'Fancify_say'}}($handle,$_[1],"You're now logged in as \x04${$_}{name}\x04. Access >>${$_}{access}."); 
             return 1; 
           }
         }
@@ -46,7 +46,7 @@ addPlug('Userbase', {
       if(!&{$utility{'Userbase_isLoggedIn'}}($_[0],$_[1],1)) { return 0; }
       my $handle = &{$utility{'Core_Utilities_getHandle'}}($_[0]);
       foreach(@{$lk{data}{plugin}{'Userbase'}{users}{$_[0]}}) {
-        if(${$_}{currently} =~ /^$_[1]$/i) {
+        if((${$_}{currently}) && (${$_}{currently} =~ /^$_[1]$/i)) {
           &{$utility{'Fancify_say'}}($handle,$_[1],"You're now logged out."); 
           delete ${$_}{currently}; return 1;
         }
@@ -73,7 +73,9 @@ addPlug('Userbase', {
       if(!&{$utility{'Userbase_isLoggedIn'}}($_[0],$_[1])) { return {0=>0}; }
       foreach(@{$lk{data}{plugin}{'Userbase'}{users}{$_[0]}}) {
         if(grep /^$_[1]$/i, @{${$_}{nicknames}}) {
-          return $_;
+          if((${$_}{currently}) && (${$_}{currently} =~ /^$_[1]$/i)) { 
+            return $_;
+          }
         }
       }
       return {0=>0};

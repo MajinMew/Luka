@@ -95,7 +95,7 @@ addPlug('Core_Owner',{
     '^Reload$' => {
       'tags' => ['utility'],
       'description' => "Loads any new plugins, and overwrites any updated ones.",
-      'access' => 3,
+      #'access' => 3,
       'code' => sub {
         my $startTime = time;
         foreach(keys %{$lk{plugin}}) {
