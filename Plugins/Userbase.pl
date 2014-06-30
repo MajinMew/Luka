@@ -27,10 +27,12 @@ addPlug('Userbase', {
       if(&{$utility{'Userbase_isLoggedIn'}}($_[0],$_[1],2)) { return 0; }
       my $match = 0;
       my $handle = &{$utility{'Core_Utilities_getHandle'}}($_[0]);
+      my $password = &{$utility{'Userbase_password'}}($_[2]);
       foreach(@{$lk{data}{plugin}{'Userbase'}{users}{$_[0]}}) {
         if(grep /^$_[1]$/i, @{${$_}{nicknames}}) {
           $match++;
-          if(&{$utility{'Userbase_password'}}($_[2]) =~ /^${$_}{password}$/i) {
+          #lkDebug("Comparing $password to ${$_}{password}");
+          if($password eq ${$_}{password}) {
             ${$_}{currently} = $_[1];
             &{$utility{'Fancify_say'}}($handle,$_[1],"You're now logged in as \x04${$_}{name}\x04. Access >>${$_}{access}."); 
             return 1; 
@@ -98,12 +100,6 @@ addPlug('Userbase', {
     },
   },
   'commands' => {
-    '^clearuserbase$' => {
-      'code' => sub {
-        delete $lk{data}{plugin}{'Userbase'}{users}{$_[0]};
-        lkDebug("done");
-      }
-    },
     '^Register (.+)$' => {
       'description' => "Registers a new userbase account.",
       'tags' => ['utility'],
