@@ -66,8 +66,10 @@ addPlug('Git', {
       'tags' => ['utility'],
       'code' => sub {
         system('git add *.pl'); system('git add *.bat');
-        my @output = split /\n|\r/, `git status -uno`;
+        system('git remote update');
+        my @output = split /\n|\r/, `git status`;
         my @files = ();
+        my $behind;
         foreach(@output) {
           chomp($_);
           lkDebug('Got: '.$_);
@@ -76,12 +78,20 @@ addPlug('Git', {
             $name =~ s/.+[\\\/](.+)/$1/g;
             push(@files,$1);
           }
+          elsif(/behind (\'.+?\') by (\d+)/) {
+            $behind = $2;
+          }
         }
-        if(@files) {
-          &{$utility{'Fancify_say'}}($_[1]{irc},$_[2]{where},"There are >>".@files." files modified and ready to be pushed. [\x04".(join "\x04] [\x04", @files)."\x04]");
+        if($behind) {
+          &{$utility{'Fancify_say'}}($_[1]{irc},$_[2]{where},"Your're behind by $behind commits. >>git >>pull to get the updates.");
         }
         else {
-          &{$utility{'Fancify_say'}}($_[1]{irc},$_[2]{where},"There are no files modified. Everything is synced up!");
+          if(@files) {
+            &{$utility{'Fancify_say'}}($_[1]{irc},$_[2]{where},"There are >>".@files." files modified and ready to be pushed. [\x04".(join "\x04] [\x04", @files)."\x04]");
+          }
+          else {
+            &{$utility{'Fancify_say'}}($_[1]{irc},$_[2]{where},"There are no files modified. Everything is synced up!");
+          }
         }
       }
     }
