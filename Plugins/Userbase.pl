@@ -105,7 +105,7 @@ addPlug('Userbase', {
       #lkDebug(join ":", @{$irc{msg}});
       #Pinochio!~Luka@Rizon-89357531.porycmtk01.res.dyn.suddenlink.net:NICK:Pino
       if($irc{msg}[1] =~ /^NICK$/i) {
-        my $nickname = split /\!|\@/, $irc{msg}[0];
+        my $nickname = (split /\!|\@/, $irc{msg}[0])[0];
         foreach(@{$lk{data}{plugin}{'Userbase'}{users}{$irc{name}}}) {
           if(${$_}{currently} =~ /^$nickname$/i) { 
             push(@{${$_}{nicknames}}, $nickname);

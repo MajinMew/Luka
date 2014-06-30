@@ -8,7 +8,6 @@ use IO::Select; # Used for handling connections!
 use IO::Socket; # Used for connecting!
 use utf8; # Used for fancy stuff, generally here to be safe.
 use JSON; # Used for data saving! Because YAML is for losers.
-use Digest::MD5 qw(md5_hex); # Used for Userbase. I /should/ put this in module_dependencies but that'd require more coding right now...
 $lk{version} = 'Luka 4.0';
 $lk{select} = IO::Select->new();
 ($lk{directory} = abs_path($0)) =~ s/([\\\/])[^\\\/]+?\.pl$/$1/;

@@ -20,7 +20,7 @@ addPlug('Rock',{
         }
       }
       &{$utility{'Rock_clearIssues'}}();
-      addTimer(time+(int(rand(1000)+1000)),{'name' => 'rock', 'code' => $lk{plugin}{'Rock'}{utilities}{timer}});
+      addTimer(time+(int(rand(1000)+2000)),{'name' => 'rock', 'code' => $lk{plugin}{'Rock'}{utilities}{timer}});
     },
     'clearIssues' => sub {
       # Server Name, Channel
@@ -253,6 +253,11 @@ addPlug('Rock',{
             my @lines = (">>rock >>sound and eats >>food.",">>rock isn't hungry right now.", ">>rock feels >>mood now.");
             &{$utility{'Fancify_say'}}($_[1]{irc},$_[2]{where},&{$utility{'Rock_getWisdom'}}($_[0],$_[2]{where},$lines[rand @lines]));
             &{$utility{'Rock_protect'}}($_[0],$_[2]{where},600);
+          }
+          elsif($com =~ /^fuck|sex$/i) {
+            my @lines = (">>rock says \"B-but I don't go there!\"", ">>Rock shivers at the thought", ">>Rock is too big", ">>Rock is wet", ">>rock accepts a challenge.");
+            &{$utility{'Fancify_say'}}($_[1]{irc},$_[2]{where},&{$utility{'Rock_getWisdom'}}($_[0],$_[2]{where},$lines[rand @lines]));
+            &{$utility{'Rock_protect'}}($_[0],$_[2]{where},int(rand(1000)));
           }
           elsif($com =~ /^help$/i) {
             &{$utility{'Fancify_say'}}($_[1]{irc},$_[2]{where},"What can you do with your rock? Try >>Rock >>Feed, >>Rock >>Pet, >>Rock >>Throw >>TARGET, >>Rock >>Wash, or if you're a horrible person. >>Rock >>Kill");
