@@ -9,12 +9,12 @@ addPlug('Twitter', {
     'setUA' => sub {
       # Input: Server Name, Nickname
       my $ua = OAuth::Consumer->new(
-                  oauth_consumer_key => 'key',
-                  oauth_consumer_secret => 'secret'
-                  oauth_request_token_url => 'http://provider/oauth/request_token',
-                  oauth_authorize_url => 'http://provider/oauth/authorize',
-                  oauth_access_token_url => 'http://provider/oauth/access_token'
-          );
+        oauth_consumer_key => 'key',
+        oauth_consumer_secret => 'secret',
+        oauth_request_token_url => 'http://provider/oauth/request_token',
+        oauth_authorize_url => 'http://provider/oauth/authorize',
+        oauth_access_token_url => 'http://provider/oauth/access_token'
+      );
     },
   },
   'commands' => {

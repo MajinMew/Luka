@@ -242,7 +242,7 @@ addPlug('Rock',{
             $target =~ s/\s$//;
             my @lines = (">>rock is flung at $target.",">>rock hits $target with the force of exactly ".(int(rand(1000)+1))." suns.",">>rock flies at $target, unwillingly.");
             &{$utility{'Fancify_say'}}($_[1]{irc},$_[2]{where},&{$utility{'Rock_getWisdom'}}($_[0],$_[2]{where},$lines[rand @lines]));
-            &{$utility{'Rock_protect'}}($_[0],$_[2]{where},-300);
+            &{$utility{'Rock_protect'}}($_[0],$_[2]{where},-(int(rand(1000))));
           }
           elsif($com =~ /^wash|bathe$/i) {
             my @lines = (">>rock >>sound.",">>rock is soaked. >>genderself looks >>mood right now.", ">>rock feels >>mood thanks to this bath!");
@@ -257,7 +257,7 @@ addPlug('Rock',{
           elsif($com =~ /^fuck|sex$/i) {
             my @lines = (">>rock says \"B-but I don't go there!\"", ">>Rock shivers at the thought", ">>Rock is too big", ">>Rock is wet", ">>rock accepts a challenge.");
             &{$utility{'Fancify_say'}}($_[1]{irc},$_[2]{where},&{$utility{'Rock_getWisdom'}}($_[0],$_[2]{where},$lines[rand @lines]));
-            &{$utility{'Rock_protect'}}($_[0],$_[2]{where},int(rand(1000)));
+            &{$utility{'Rock_protect'}}($_[0],$_[2]{where},int(rand(1000)+300));
           }
           elsif($com =~ /^help$/i) {
             &{$utility{'Fancify_say'}}($_[1]{irc},$_[2]{where},"What can you do with your rock? Try >>Rock >>Feed, >>Rock >>Pet, >>Rock >>Throw >>TARGET, >>Rock >>Wash, or if you're a horrible person. >>Rock >>Kill");
