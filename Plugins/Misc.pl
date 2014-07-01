@@ -23,6 +23,16 @@ addPlug("Caaz_Utilities", {
       }
       return 'NONAME';
     },
+    'pluralize' => sub {
+      # Input: Word, count.
+      my $word = $_[0];
+      if((!$_[1]) || ($_[1] >= 2)) {
+        if($word =~ /y$/) { $word =~ s/y$/ies/; }
+        elsif($word =~ /s$/) { return $word; }
+        else { $word .= 's'; }
+      }
+      return $word;
+    }
   },
   'code' => {
     'irc' => sub {

@@ -231,7 +231,7 @@ sub lkUnloadPlugins {
 }
 sub lkLoadPlugins {
   # Alright guys, here's where shit gets serious.
-  my $errors = 0;
+  my @errors = ();
   if(!-e "Plugins/") { lkDebug("No plugin directory! Making one."); mkdir("Plugins"); }
   foreach(<Plugins/*.pl>) {
     # Check file timestamps, only load plugins which are new!
@@ -239,7 +239,7 @@ sub lkLoadPlugins {
       $lk{tmp}{lastUpdated}{$_} = (stat($_))[9];
       lkDebug("Loading $_.");
       open NEW, "<".$_; eval(join "", <NEW>);
-      if($@){ $errors++; lkDebug($@); } 
+      if($@){ push(@errors, {plugin=>$_,message=>$@}); delete $lk{tmp}{lastUpdated}{$_}; lkDebug($@); } 
       close NEW;
     }
   }
@@ -252,7 +252,7 @@ sub lkLoadPlugins {
       # Cross plugin dependencies
       foreach(@{$lk{plugin}{$plug}{dependencies}}) {
         if(!$lk{plugin}{$_}){
-          $errors++;
+          push(@errors, {plugin=>$plug,message=>"Didn't meet plugin dependency ($_)"});
           lkDebug("Deleting plugin $lk{plugin}{$plug}{name} ($plug). Didn't meet dependency ($_)");
           delete $lk{plugin}{$plug};
           $modified = 1;
@@ -262,7 +262,7 @@ sub lkLoadPlugins {
       foreach(@{$lk{plugin}{$plug}{modules}}) {
         eval("use $_;");
         if($@) {
-          $errors++;
+          push(@errors, {plugin=>$plug,message=>"Didn't meet module dependency ($_)"});
           lkDebug("Deleting plugin $lk{plugin}{$plug}{name} ($plug). Didn't meet module dependency ($_)");
           delete $lk{plugin}{$plug};
           $modified = 1;
@@ -274,7 +274,7 @@ sub lkLoadPlugins {
   foreach(keys %{$lk{plugin}}) {
     &{$lk{plugin}{$_}{code}{load}}({'data' => $lk{data}{plugin}{$_}, 'tmp' => $lk{tmp}{plugin}{$_}}) if($lk{plugin}{$_}{code}{load});
   }
-  return $errors;
+  return \@errors;
 }
 sub lkEnd {
   lkDebug("Quitting safely.");

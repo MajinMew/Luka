@@ -91,29 +91,6 @@ addPlug('Core_Owner',{
       'access' => 3,
       'code' => \&lkEnd
     },
-    '^Reload$' => {
-      'tags' => ['utility'],
-      'description' => "Loads any new plugins, and overwrites any updated ones.",
-      'access' => 3,
-      'code' => sub {
-        my $startTime = time;
-        foreach(keys %{$lk{plugin}}) {
-          &{$lk{plugin}{$_}{code}{unload}}({'data' => $lk{data}{plugin}{$_}, 'tmp' => $lk{tmp}{plugin}{$_}}) if($lk{plugin}{$_}{code}{unload});
-        }
-        my $errors = lkLoadPlugins();
-        lkRaw($_[1]{irc},"PRIVMSG $_[2]{where} :Reloaded. (".(time - $startTime)." seconds, $errors errors)");
-      }
-    },
-    '^Refresh$' => {
-      'tags' => ['utility'],
-      'description' => "Forcibly reloads all the things.",
-      'access' => 3,
-      'code' => sub {
-        lkUnloadPlugins();
-        my $errors = lkLoadPlugins();
-        lkRaw($_[1]{irc},"PRIVMSG $_[2]{where} :Reloaded. (".(time - $startTime)." seconds, $errors errors)");
-      }
-    },
     '^Autojoin (\#.+)$' => {
       'tags' => ['utility'],
       'description' => "Adds or removes channels from autojoin.",
