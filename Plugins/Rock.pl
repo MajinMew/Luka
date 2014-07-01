@@ -4,7 +4,7 @@ addPlug('Rock',{
   'description' => "More Games, they said.",
   'name' => 'Virtual Pet Rock',
   'dependencies' => ['Core_Utilities','Fancify','Core_Command','Caaz_Utilities'],
-  'modules' => ['DateTime','DateTime::TimeZone'],
+  'modules' => ['DateTime'],
   'utilities' => {
     'timer' => sub {
       foreach $serverName (keys %{$lk{data}{plugin}{'Rock'}{rocks}}) {
