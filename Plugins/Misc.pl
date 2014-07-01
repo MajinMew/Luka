@@ -32,7 +32,7 @@ addPlug("Caaz_Utilities", {
         else { $word .= 's'; }
       }
       return $word;
-    }
+    },
   },
   'code' => {
     'irc' => sub {

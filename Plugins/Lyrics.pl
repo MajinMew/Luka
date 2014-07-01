@@ -55,6 +55,7 @@ addPlug('Lyrics', {
             if((split //, $string) > 370) { $string =~ s/ \x04\/\x04 $//; $string .= "..."; last; }
           }
           # Show it!
+          $string =~ s/ \x04\/\x04 $//;
           &{$utility{'Fancify_say'}}($_[0],$_[1],$string);
         }
       }

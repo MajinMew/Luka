@@ -177,6 +177,7 @@ addPlug('Core_Utilities',{
     }
   },
   'utilities' => {
+    'uniq' => sub { my %seen; grep !$seen{$_}++, @_ }, # I can't take any credit for this, but it is fucking beautiful.
     'debugHash' => sub {
       # Input: \%hash;
       my %hash = %{ shift(); };

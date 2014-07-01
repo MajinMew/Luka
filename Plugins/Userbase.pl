@@ -27,12 +27,12 @@ addPlug('Userbase', {
       if(&{$utility{'Userbase_isLoggedIn'}}($_[0],$_[1],2)) { return 0; }
       my $match = 0;
       my $handle = &{$utility{'Core_Utilities_getHandle'}}($_[0]);
-      my $password = &{$utility{'Userbase_password'}}($_[2]);
       foreach(@{$lk{data}{plugin}{'Userbase'}{users}{$_[0]}}) {
         if(grep /^$_[1]$/i, @{${$_}{nicknames}}) {
           $match++;
+          my @password = @{&{$utility{'Userbase_password'}}($_[2],${$_}{password}[1])};
           #lkDebug("Comparing $password to ${$_}{password}");
-          if($password eq ${$_}{password}) {
+          if($password[0] eq ${$_}{password}[0]) {
             ${$_}{currently} = $_[1];
             &{$utility{'Fancify_say'}}($handle,$_[1],"You're now logged in as \x04${$_}{name}\x04. Access >>${$_}{access}."); 
             return 1; 
@@ -67,18 +67,14 @@ addPlug('Userbase', {
       return 0;
     },
     'password' => sub {
-      # Password
-      return &{$utility{'Digest_bcrypt'}}($_[0]);
+      # Password, Salt
+      return &{$utility{'Digest_bcrypt'}}($_[0],$_[1]);
     },
     'info' => sub {
       # Server, Nicknamec
       if(!&{$utility{'Userbase_isLoggedIn'}}($_[0],$_[1])) { return {0=>0}; }
       foreach(@{$lk{data}{plugin}{'Userbase'}{users}{$_[0]}}) {
-        if(grep /^$_[1]$/i, @{${$_}{nicknames}}) {
-          if((${$_}{currently}) && (${$_}{currently} =~ /^$_[1]$/i)) { 
-            return $_;
-          }
-        }
+        if(grep /^$_[1]$/i, @{${$_}{nicknames}}) { if((${$_}{currently}) && (${$_}{currently} =~ /^$_[1]$/i)) { return $_; } }
       }
       return {0=>0};
     },
@@ -90,7 +86,7 @@ addPlug('Userbase', {
       foreach(@{$lk{data}{plugin}{'Userbase'}{users}{$_[0]}}) {
         if(grep /^$_[2]$/i, @{${$_}{nicknames}}) {
           $match++;
-          &{$utility{'Fancify_say'}}($handle,$_[1],">>$i: [\x04${$_}{name}\x04] [Access: >>${$_}{access}]");
+          &{$utility{'Fancify_say'}}($handle,$_[1],">>$i: [\x04${$_}{name}\x04] [Access: >>${$_}{access}] [Nicknames: \x04".(join "\x04, \x04", @{${$_}{nicknames}})."\x04]");
         }
         $i++;
       }
@@ -107,9 +103,13 @@ addPlug('Userbase', {
       if($irc{msg}[1] =~ /^NICK$/i) {
         my $nickname = (split /\!|\@/, $irc{msg}[0])[0];
         foreach(@{$lk{data}{plugin}{'Userbase'}{users}{$irc{name}}}) {
-          if(${$_}{currently} =~ /^$nickname$/i) { 
-            push(@{${$_}{nicknames}}, $nickname);
-            ${$_}{currently} = $nickname; 
+          if(${$_}{currently} =~ /^$nickname$/i) {
+            if(!(grep /^$irc{msg}[2]$/i, @{${$_}{nicknames}})){ 
+              lkDebug("Adding $irc{msg}[2] to $nickname's account.");
+              push(@{${$_}{nicknames}}, $irc{msg}[2]);
+              @{${$_}{nicknames}} = &{$utility{'Core_Utilities_uniq'}}(@{${$_}{nicknames}});
+            }
+            ${$_}{currently} = $irc{msg}[2]; 
           }
         }
       }

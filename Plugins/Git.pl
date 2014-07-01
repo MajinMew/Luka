@@ -57,7 +57,8 @@ addPlug('Git', {
             ($changes = $_) =~ s/^\s|\s$//g;
           }
         }
-        &{$utility{'Fancify_say'}}($_[1]{irc},$_[2]{where},"Pulled latest updates from >>Github. $changes");
+        &{$utility{'Fancify_say'}}($_[1]{irc},$_[2]{where},"Pulled latest updates from >>Github. $changes Reloading.");
+        &{$utility{'Core_reloadSay'}}($_[1]{irc},$_[2]{where},0);
       }
     },
     '^Git status$' => {
@@ -85,7 +86,7 @@ addPlug('Git', {
           }
         }
         if($behind) {
-          &{$utility{'Fancify_say'}}($_[1]{irc},$_[2]{where},"Your're behind by $behind commits. >>git >>pull to get the updates.");
+          &{$utility{'Fancify_say'}}($_[1]{irc},$_[2]{where},"Your're behind by $behind. >>git >>pull to get the updates.");
         }
         else {
           if(@files) {
