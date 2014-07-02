@@ -12,7 +12,7 @@ addPlug("Fancify", {
         my @colors = split /\, /, $1;
         foreach(@colors) { $_ = '0'.$_ if($_<10); }
         @{$lk{data}{plugins}{'Fancify'}{colors}} = @colors;
-        &{$lk{plugin}{"Fancify"}{utilities}{say}}($_[1]{irc},$_[2]{where},"Updated colors");
+        &{$lk{plugin}{"Fancify"}{utilities}{say}}($_[1]{irc},$_[2]{where},"Updated colors >>This is what you can expect things to \x04look like\x04.");
       }
     }
   },
