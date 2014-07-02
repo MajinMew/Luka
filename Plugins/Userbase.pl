@@ -48,7 +48,7 @@ addPlug('Userbase', {
       if(!&{$utility{'Userbase_isLoggedIn'}}($_[0],$_[1],1)) { return 0; }
       my $handle = &{$utility{'Core_Utilities_getHandle'}}($_[0]);
       foreach(@{$lk{data}{plugin}{'Userbase'}{users}{$_[0]}}) {
-        if((${$_}{currently}) && (${$_}{currently} =~ /^$_[1]$/i)) {
+        if((${$_}{currently}) && (${$_}{currently} eq $_[1])) {
           &{$utility{'Fancify_say'}}($handle,$_[1],"You're now logged out."); 
           delete ${$_}{currently}; return 1;
         }
@@ -74,7 +74,7 @@ addPlug('Userbase', {
       # Server, Nicknamec
       if(!&{$utility{'Userbase_isLoggedIn'}}($_[0],$_[1])) { return {0=>0}; }
       foreach(@{$lk{data}{plugin}{'Userbase'}{users}{$_[0]}}) {
-        if(grep /^$_[1]$/i, @{${$_}{nicknames}}) { if((${$_}{currently}) && (${$_}{currently} =~ /^$_[1]$/i)) { return $_; } }
+        if(grep /^$_[1]$/i, @{${$_}{nicknames}}) { if((${$_}{currently}) && (${$_}{currently} eq $_[1])) { return $_; } }
       }
       return {0=>0};
     },
@@ -103,12 +103,10 @@ addPlug('Userbase', {
       if($irc{msg}[1] =~ /^NICK$/i) {
         my $nickname = (split /\!|\@/, $irc{msg}[0])[0];
         foreach(@{$lk{data}{plugin}{'Userbase'}{users}{$irc{name}}}) {
-          if(${$_}{currently} =~ /^$nickname$/i) {
-            if(!(grep /^$irc{msg}[2]$/i, @{${$_}{nicknames}})){ 
-              lkDebug("Adding $irc{msg}[2] to $nickname's account.");
-              push(@{${$_}{nicknames}}, $irc{msg}[2]);
-              @{${$_}{nicknames}} = &{$utility{'Core_Utilities_uniq'}}(@{${$_}{nicknames}});
-            }
+          if(${$_}{currently} eq $nickname) {
+            lkDebug("Adding $irc{msg}[2] to $nickname's account.");
+            push(@{${$_}{nicknames}}, $irc{msg}[2]);
+            @{${$_}{nicknames}} = &{$utility{'Core_Utilities_uniq'}}(@{${$_}{nicknames}});
             ${$_}{currently} = $irc{msg}[2]; 
           }
         }
