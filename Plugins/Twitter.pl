@@ -2,7 +2,7 @@ addPlug('Twitter', {
   'creator' => 'Caaz',
   'version' => '1.1',
   'description' => "Something about Twitter functionality",
-  'name' => 'Virtual Pet Rock',
+  'name' => 'Twitter',
   'dependencies' => ['Core_Command','Core_Utilities'],
   'modules' => ['OAuth::Consumer'],
   'utilities' => {

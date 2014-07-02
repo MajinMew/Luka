@@ -19,7 +19,7 @@ addPlug('Userbase', {
       );
       if(!@{$lk{data}{plugin}{'Userbase'}{users}{$_[0]}}) { $user{access} = 3; }
       push(@{$lk{data}{plugin}{'Userbase'}{users}{$_[0]}},\%user);
-      &{$utility{'Fancify_say'}}($handle,$_[1],"You've made a new account with the name \x04$user{name}\x04 You are user >>".@{$lk{data}{plugin}{'Userbase'}{users}{$_[0]}}.". You have >>$user{access} access."); 
+      &{$utility{'Fancify_say'}}($handle,$_[1],"You've made a new account with the name \x04$user{name}\x04 You are user >>".(@{$lk{data}{plugin}{'Userbase'}{users}{$_[0]}}-1).". You have >>$user{access} access."); 
       return 1;
     },
     'login' => sub {

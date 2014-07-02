@@ -19,7 +19,7 @@ addPlug("Caaz_Utilities", {
         my $capture = $1;
         my @name;
         while($capture =~ /\<a class=\"plain\".+?\>(.+?)\<\/a\>/g) { push(@name, $1); }
-        return join " ", @name;
+        return decode_entities(join " ", @name);
       }
       return 'NONAME';
     },
@@ -239,7 +239,7 @@ addPlug("Misc_Commands", {
           foreach(@lines) { if($_ =~ /\#/) {$count{comments}++;} }
           close NEW;
         }
-        &{$utility{'Fancify_say'}}($_[1]{irc},$_[2]{where},"[\x04$lk{version}\x04] (".hostname()." >>$lk{os}) >>$count{lines} lines, >>$count{comments} comments, >>".(keys %{$lk{plugin}})." plugins, >>".@files." files.");
+        &{$utility{'Fancify_say'}}($_[1]{irc},$_[2]{where},"[\x04$lk{version}\x04] (".hostname()." >>$lk{os}) >>$count{lines} lines, >>$count{comments} comments, >>".(keys %{$lk{plugin}})." plugins loaded, >>".@files." files.");
       }
     }
   }

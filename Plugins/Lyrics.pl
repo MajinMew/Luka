@@ -28,7 +28,7 @@ addPlug('Lyrics', {
             url => $info[0]
           });
         }
-        $count++; if($count >= 5) { last; }
+        $count++; if($count >= 2) { last; }
       }
       # If we've got any matches, let's fill out the @lyrics array with actual lyrics! 
       foreach $lyric (@lyrics) {

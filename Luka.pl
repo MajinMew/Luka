@@ -301,6 +301,7 @@ sub addPlug {
   if($lk{data}{disablePlugin}{$_[0]}) {
     # Plugin is disabled, according to config!
     lkDebug("Ignoring Plugin ${$_[1]}{name} ($_[0])");
+    %{$lk{plugin}{$_[0]}} = ('name' => ${$_[1]}{name});
   }
   else {
     # Plugin is probably not disabled, so try loading it!
@@ -309,6 +310,7 @@ sub addPlug {
       &{$lk{plugin}{$_[0]}{code}{unload}}({'data' => $lk{data}{plugin}{$_[0]}, 'tmp' => $lk{tmp}{plugin}{$_[0]}}) if($lk{plugin}{$_[0]}{code}{unload}); 
       lkDebug("Overwriting Plugin ${$_[1]}{name} ($_[0])"); 
       delete $lk{plugin}{$_[0]};
+      %{$lk{plugin}{$_[0]}} = ('name' => ${$_[1]}{name});
     }
     # Key doesn't exist. Must be loading the plugin for the first time!
     else { lkDebug("Loading Plugin ${$_[1]}{name} ($_[0])"); }

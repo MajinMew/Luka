@@ -1,6 +1,6 @@
 addPlug('Core', {
   'creator' => 'Caaz',
-  'version' => '1',
+  'version' => '2',
   'name' => 'Core',
   'dependencies' => ['Fancify','Core_Utilities'],
   'description' => "A new Core plugin to replace old functions.",
@@ -29,6 +29,55 @@ addPlug('Core', {
         @msg = grep !/^\s+?$/, @msg;
         &{$utility{'Fancify_say'}}($_[0],$_[1],"[\x04${$_}{plugin}\x04] ".(join " \x04|\x04 ", @msg));
       }
+    },
+    'getAllPlugins' => sub {
+      # Input: None
+      # Output: An array of plugins, sorted by name, filled with info!
+      my %output;
+      foreach $plug (keys %{$lk{plugin}}) {
+        my %plugin = (key=>$plug);
+        foreach('name','creator','version','description') { $plugin{$_} = $lk{plugin}{$plug}{$_} if($lk{plugin}{$plug}{$_}); }
+        if(!$lk{data}{disablePlugin}{$plug}) { push(@{$output{loaded}}, \%plugin); }
+        else { push(@{$output{unloaded}}, \%plugin); }
+      }
+      foreach $load ('loaded','unloaded') { @{$output{$load}} = sort { lc(${$a}{key}) cmp lc(${$b}{key}) } @{$output{$load}}; }
+      return \%output;
+    },
+    'getPluginString' => sub {
+      # Input: Plugin, Type
+      # 0: Short
+      my %plugin = %{$_[0]};
+      my $type = $_[1];
+     # &{$utility{'Core_Utilities_debugHash'}}(\%plugin);
+      my $string = '';
+      if((!$type) || ($type == 0)) {
+        $string .= "[\x04$plugin{key}\x04]";
+      }
+      return $string;
+    },
+    'showPlugins' => sub {
+      # Input: Handle, Where, type
+      my %plugins = %{&{$utility{'Core_getAllPlugins'}}};
+      my @output;
+      if((!$_[2]) || ($_[2] == 0)) {
+        &{$utility{'Fancify_say'}}($_[0],$_[1],">>".@{$plugins{loaded}}." plugins loaded.");
+        foreach(@{$plugins{loaded}}) { push(@output, &{$utility{'Core_getPluginString'}}($_,0)); }
+      }
+      else {
+        &{$utility{'Fancify_say'}}($_[0],$_[1],">>".@{$plugins{unloaded}}." plugins not loaded.");
+        foreach(@{$plugins{unloaded}}) { push(@output, &{$utility{'Core_getPluginString'}}($_,0)); }
+      }
+      my $string = '';
+      foreach(@output) {
+        $string .= $_.' ';
+        if((split //, $string) > 300) { &{$utility{'Fancify_say'}}($_[0],$_[1],$string); $string = ''; }
+      }
+      if($string !~ /^$/) { &{$utility{'Fancify_say'}}($_[0],$_[1],$string); }
+      #lkDebug(join ", ", @output);
+    },
+    'disablePlugin' => sub {
+      # Input : Plugin Key
+      # Output : True if succeeded.
     }
   },
   'commands' => {
@@ -49,6 +98,18 @@ addPlug('Core', {
       'tags' => ['utility'],
       'access' => 3,
       'code' => sub { &{$utility{'Core_restart'}}(); }
+    },
+    '^Plugins Loaded$' => {
+      'description' => "Lists all Loaded plugins.",
+      'tags' => ['utility'],
+      'access' => 3,
+      'code' => sub { &{$utility{'Core_showPlugins'}}($_[1]{irc},$_[2]{where},0); }
+    },
+    '^Plugins Unloaded$' => {
+      'description' => "Lists all Unloaded plugins.",
+      'tags' => ['utility'],
+      'access' => 3,
+      'code' => sub { &{$utility{'Core_showPlugins'}}($_[1]{irc},$_[2]{where},1); }
     },
   }
 });
